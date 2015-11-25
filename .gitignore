@@ -6,3 +6,4 @@ dist
 .tox
 .env
 .cache
+build
