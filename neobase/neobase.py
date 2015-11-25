@@ -1,0 +1,448 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+"""
+GeoBase. Rebooted.
+
+    >>> b = NeoBase()
+    >>> b.get('ORY', 'city_code_list')
+    ['PAR']
+    >>> b.get('ORY', 'city_name_list')
+    ['Paris']
+    >>> b.get('ORY', 'country_code')
+    'FR'
+    >>> b.distance('ORY', 'CDG')
+    34.87...
+    >>> b.get_location('ORY')
+    LatLng(lat=48.72..., lng=2.35...)
+"""
+
+from __future__ import with_statement, print_function, division
+
+import os.path as op
+import csv
+import heapq
+from collections import namedtuple
+from math import pi, cos, sin, asin, sqrt
+
+__all__ = ['NeoBase', 'LatLng']
+
+_DIR = op.dirname(__file__)
+_FILE_PATH = op.join(_DIR, 'optd_por_public.csv')
+_DEFAULT_RADIUS = 50
+
+_FIELDS = (
+    ('iata_code', 0),
+    ('name', 6),
+    ('lat', 8),
+    ('lng', 9),
+    ('country_code', 16),
+    ('continent_name', 19),
+    ('timezone', 31),
+    ('city_code_list', 36),
+    ('city_name_list', 37),
+    ('location_type', 41),
+)
+
+_SPLITS = (
+    ('city_code_list', lambda s: s.split(',')),
+    ('city_name_list', lambda s: s.split('=')),
+    ('location_type', list),
+)
+
+_KEY = 0 # iata_code
+
+
+LatLng = namedtuple('LatLng', ['lat', 'lng'])
+
+
+class NeoBase(object):
+    """Main structure, a wrapper around a dict, with dict-like behavior.
+    """
+    def __init__(self, rows=None):
+        if rows is None:
+            with open(_FILE_PATH) as f:
+                self._data = self.load(f)
+        else:
+            self._data = self.load(rows)
+
+
+    @staticmethod
+    def _empty_value():
+        return {'__dup__': set()}
+
+
+    @classmethod
+    def load(cls, f):
+        """Building a dictionary of geographical data from optd_por.
+
+        >>> path = op.join(_DIR, 'optd_por_public.csv')
+        >>> with open(path) as f:
+        ...     b = NeoBase.load(f)
+        >>> b['ORY']['city_code_list']
+        ['PAR']
+        """
+        data = {}
+        next(f) # skipping first line
+
+        for row in csv.reader(f, delimiter='^', quotechar='"'):
+            # Comments and empty lines
+            if not row or row[0].startswith('#'):
+                continue
+
+            key = row[_KEY]
+            if key not in data:
+                data[key] = d = cls._empty_value()
+            else:
+                prev_d = data[key]
+                new_key = '{0}@{1}'.format(key, 1 + len(prev_d['__dup__']))
+                data[new_key] = d = cls._empty_value()
+                # Exchanging duplicata information
+                d['__dup__'] = prev_d['__dup__'] | set([key])
+                prev_d['__dup__'].add(new_key)
+
+            for field, c in _FIELDS:
+                d[field] = row[c]
+
+            for field, splitter in _SPLITS:
+                d[field] = splitter(d[field])
+
+        return data
+
+
+    def __iter__(self):
+        """Returns iterator of all keys in the base.
+
+        :returns: the iterator of all keys
+
+        >>> b = NeoBase()
+        >>> sorted(b)
+        ['AAA', 'AAA@1', 'AAB', 'AAC', 'AAC@1', ...
+        """
+        return iter(self._data)
+
+
+    def __contains__(self, key):
+        """Test if a key is in the base.
+
+        :param key: the key of to be tested
+        :returns:   a boolean
+
+        >>> b = NeoBase()
+        >>> 'AN' in b
+        False
+        >>> 'AGN' in b
+        True
+        """
+        return key in self._data
+
+
+    def __nonzero__(self):
+        """Testing structure emptiness.
+
+        :returns: a boolean
+
+        >>> b = NeoBase()
+        >>> if b:
+        ...     print('not empty')
+        not empty
+        """
+        return bool(self._data)
+
+
+    def __len__(self):
+        """Testing structure size.
+
+        :returns: a integer
+
+        >>> b = NeoBase()
+        >>> 18000 < len(b) < 20000
+        True
+        """
+        return len(self._data)
+
+
+    def set(self, key, **kwargs):
+        """Set information.
+
+        >>> b = NeoBase()
+        >>> b.get('ORY', 'name')
+        'Paris Orly Airport'
+        >>> b.set('ORY', name='test')
+        >>> b.get('ORY', 'name')
+        'test'
+        >>> b.set('Wow!', name='test')
+        >>> b.get('Wow!', 'name')
+        'test'
+        """
+        if key not in self:
+            self._data[key] = self._empty_value()
+        self._data[key].update(kwargs)
+
+
+    def get(self, key, field=None, **kwargs):
+        """Get data from structure.
+
+        >>> b = NeoBase()
+        >>> b.get('OR', 'city_code_list', default=None)
+        >>> b.get('ORY', 'city_code_list')
+        ['PAR']
+        """
+        try:
+            d = self._data[key]
+        except KeyError:
+            # Unless default is set, we raise an Exception
+            if 'default' in kwargs:
+                return kwargs['default']
+            else:
+                raise KeyError("Key not found: {0}".format(key))
+
+        if field is None:
+            return d # we return the whole dictionary
+
+        try:
+            res = d[field]
+        except KeyError:
+            raise KeyError("Field '{0}' (for key '{1}') not in {2}".format(
+                field, key, list(d)))
+        else:
+            return res
+
+
+    def get_location(self, key, **kwargs):
+        """Get None or the geocode.
+
+        >>> b = NeoBase()
+        >>> b.get_location('ORY')
+        LatLng(lat=48.72..., lng=2.35...)
+        """
+        if key not in self:
+            # Unless default is set, we raise an Exception
+            if 'default' in kwargs:
+                return kwargs['default']
+            else:
+                raise KeyError("Key not found: {0}".format(key))
+
+        try:
+            loc = LatLng(float(self.get(key, 'lat')),
+                         float(self.get(key, 'lng')))
+
+        except (ValueError, TypeError, KeyError):
+            # Decode geocode, if error, returns None
+            # TypeError : input type is not a string, probably None
+            # ValueError: could not convert to float
+            # KeyError  : could not find lat or lng 'fields'
+            return None
+        else:
+            return loc
+
+
+    @staticmethod
+    def haversine(l0, l1):
+        """Great circle distance
+
+        :param l0: the LatLng tuple of the first point
+        :param l1: the LatLng tuple of the second point
+        :returns:  the distance in kilometers
+
+        >>> NeoBase.haversine((48.84, 2.367), (43.70, 7.26)) # Paris -> Nice
+        683.85...
+
+        Case of unknown location.
+
+        >>> NeoBase.haversine(None, (43.70, 7.26)) # returns None
+        """
+        if l0 is None or l1 is None:
+            return None
+
+        lat_0 = l0[0] / 180 * pi
+        lng_0 = l0[1] / 180 * pi
+        lat_1 = l1[0] / 180 * pi
+        lng_1 = l1[1] / 180 * pi
+
+        # Haversine formula (6371 is Earth radius)
+        return 2 * 6371.0 * asin(sqrt(
+            sin(0.5 * (lat_0 - lat_1)) ** 2 +
+            sin(0.5 * (lng_0 - lng_1)) ** 2 *
+            cos(lat_0) * cos(lat_1)
+        ))
+
+
+    def distance(self, key_0, key_1):
+        """Compute distance between two elements.
+
+        This is just a wrapper between the original haversine
+        function, but it is probably the most used feature :)
+
+        :param key_0: the first key
+        :param key_1: the second key
+        :returns:    the distance (km)
+
+        >>> b = NeoBase()
+        >>> b.distance('ORY', 'CDG')
+        34.87...
+        """
+        return self.haversine(self.get_location(key_0),
+                              self.get_location(key_1))
+
+
+    def _build_distances(self, lat_lng_ref, keys):
+        """
+        Compute the iterable of (dist, keys) of a reference
+        lat_lng and a list of keys. Keys which have not valid
+        geocodes will not appear in the results.
+
+        >>> b = NeoBase()
+        >>> list(b._build_distances((0,0), ['ORY', 'CDG']))
+        [(5422.74..., 'ORY'), (5455.45..., 'CDG')]
+        """
+        if lat_lng_ref is None:
+            return
+
+        for key in keys:
+            if key in self:
+                lat_lng = self.get_location(key)
+                if lat_lng is not None:
+                    yield self.haversine(lat_lng_ref, lat_lng), key
+
+
+    def find_near_point(self, lat_lng, radius=_DEFAULT_RADIUS, from_keys=None):
+        """
+        Returns a list of nearby keys from a point (given
+        latidude and longitude), and a radius for the search.
+        Note that the haversine function, which compute distance
+        at the surface of a sphere, here returns kilometers,
+        so the radius should be in kms.
+
+        :param lat_lng: the lat_lng of the point
+        :param radius:  the radius of the search (kilometers)
+        :param from_keys: if None, it takes all keys in consideration, else takes from_keys \
+            iterable of keys to perform search.
+        :returns:       an iterable of keys (like ['ORY', 'CDG'])
+
+        >>> b = NeoBase()
+        >>> # Paris, airports <= 50km
+        >>> [b.get(k, 'iata_code') for d, k in sorted(b.find_near_point((48.84, 2.367), 10))]
+        ['PAR', 'XGB', 'XHP', 'XPG', 'XEX', 'XTT', 'QAF', 'JDP', 'XBT', 'QNL', 'QBH', 'QFC', 'QEV']
+        """
+        if from_keys is None:
+            from_keys = iter(self)
+
+        for dist, key in self._build_distances(lat_lng, from_keys):
+            if dist <= radius:
+                yield dist, key
+
+
+    def find_near_key(self, key, radius=_DEFAULT_RADIUS, from_keys=None):
+        """
+        Same as find_near_point, except the point is given
+        not by a lat/lng, but with its key, like ORY or SFO.
+        We just look up in the base to retrieve lat/lng, and
+        call find_near_point.
+
+        :param key:     the key of the point
+        :param radius:  the radius of the search (kilometers)
+        :param from_keys: if None, it takes all keys in consideration, else takes from_keys \
+            iterable of keys to perform search.
+        :returns:       a list of keys (like ['ORY', 'CDG'])
+
+        >>> b = NeoBase()
+        >>> sorted(b.find_near_key('ORY', 10)) # Orly, por <= 10km
+        [(0.0, 'ORY'), (6.94..., 'XJY'), (9.96..., 'QFC')]
+        """
+        if from_keys is None:
+            from_keys = iter(self)
+
+        if key not in self:
+            return
+
+        for dist, key in self.find_near_point(self.get_location(key),
+                                                radius=radius,
+                                                from_keys=from_keys):
+            yield dist, key
+
+
+    def find_closest_from_point(self, lat_lng, N=1, from_keys=None):
+        """
+        Concept close to find_near_point, but here we do not
+        look for the keys radius-close to a point,
+        we look for the closest key from this point, given by
+        latitude/longitude.
+
+        Note that a similar implementation is done in
+        the LocalHelper, to find efficiently N closest point
+        in a graph, from a point (using heaps).
+
+        :param lat_lng:   the lat_lng of the point
+        :param N:         the N closest results wanted
+        :param from_keys: if None, it takes all keys in consideration, else takes from_keys \
+            iterable of keys to perform find_closest_from_point. This is useful to combine \
+            searches
+        :returns:   one key (like 'SFO'), or a list if approximate is not None
+
+        >>> b = NeoBase()
+        >>> list(b.find_closest_from_point((43.70, 7.26))) # Nice
+        [(0.60..., 'NCE@1')]
+        >>> list(b.find_closest_from_point((43.70, 7.26), N=3)) # Nice
+        [(0.60..., 'NCE@1'), (5.82..., 'NCE'), (5.89..., 'XBM')]
+        """
+        if from_keys is None:
+            from_keys = iter(self)
+
+        iterable = self._build_distances(lat_lng, from_keys)
+
+        for dist, key in heapq.nsmallest(N, iterable):
+            yield dist, key
+
+
+    def find_with(self, conditions, from_keys=None, reverse=False):
+        """Get iterator of all keys with particular field.
+
+        For example, if you want to know all airports in Paris.
+
+        :param conditions: a list of (field, value) conditions
+        :param reverse:    we look keys where the field is *not* the particular value
+        :returns:          an iterator of matching keys
+
+        Testing several conditions.
+
+        >>> b = NeoBase()
+        >>> c0 = [('city_code_list', ['PAR'])]
+        >>> c1 = [('location_type', ['H'])]
+        >>> len(list(b.find_with(c0)))
+        17
+        >>> len(list(b.find_with(c1)))
+        143
+        >>> len(list(b.find_with(c0 + c1)))
+        2
+        """
+        if from_keys is None:
+            from_keys = iter(self)
+
+        if not reverse:
+            match = lambda a, b: a == b
+        else:
+            match = lambda a, b: a != b
+
+        for key in from_keys:
+            if key in self:
+                if all(match(self.get(key, f), v) for f, v in conditions):
+                    yield key
+
+
+if __name__ == '__main__':
+    import argparse
+    from pprint import pprint
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('keys', nargs='+', help="List of IATA codes")
+    args = parser.parse_args()
+    b = NeoBase()
+
+    for key in args.keys:
+        if key in b:
+            pprint(b.get(key))
+        else:
+            print('{0} not in data.'.format(key))
+
+
