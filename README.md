@@ -1,6 +1,13 @@
 # NeoBase
 
-Simple reboot of GeoBase. Compatible with Python 2.6+, Python 3.x, Pypy.
+Minimalist [GeoBases](http://opentraveldata.github.com/geobases/) implementation:
+
+* no dependencies
+* compatible with Python 2.6+, Python 3.x, Pypy
+* one data source: [opentraveldata](https://github.com/opentraveldata/opentraveldata)
+* one Python module for easier distribution on clusters (like Hadoop)
+* faster load time (5x)
+* tested with pytest and tox
 
 ```python
 >>> from neobase import NeoBase

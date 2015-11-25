@@ -19,7 +19,7 @@ setup(
     version=VERSION,
     author='Alex Prengère',
     author_email='alex.prengere@gmail.com',
-    url='http://rndwww.nce.amadeus.net/git/projects/SADAM/repos/neobase',
+    url='https://github.com/alexprengere/neobase',
     description='Optd Python API.',
     long_description=LONG_DESCRIPTION,
     packages=find_packages(),
