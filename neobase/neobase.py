@@ -430,7 +430,7 @@ class NeoBase(object):
                     yield key
 
 
-if __name__ == '__main__':
+def main():
     import argparse
     from pprint import pprint
 
@@ -445,4 +445,7 @@ if __name__ == '__main__':
         else:
             print('{0} not in data.'.format(key))
 
+
+if __name__ == '__main__':
+    main()
 
