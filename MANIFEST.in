@@ -1,1 +1,5 @@
-include VERSION *.md *.txt *.ini
+include VERSION
+include requirements.txt
+include README.md
+include pytest.ini tox.ini
+recursive-include neobase *.csv
