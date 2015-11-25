@@ -1,1 +1,1 @@
-include VERSION *.md *.rst *.txt *.ini
+include VERSION *.md *.txt *.ini
