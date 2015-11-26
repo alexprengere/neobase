@@ -238,33 +238,33 @@ class NeoBase(object):
 
 
     @staticmethod
-    def haversine(l0, l1):
+    def distance_between_locations(l0, l1):
         """Great circle distance
 
-        :param l0: the LatLng tuple of the first point
-        :param l1: the LatLng tuple of the second point
+        :param l0: the LatLng tuple of the first location
+        :param l1: the LatLng tuple of the second location
         :returns:  the distance in kilometers
 
-        >>> NeoBase.haversine((48.84, 2.367), (43.70, 7.26)) # Paris -> Nice
+        >>> NeoBase.distance_between_locations((48.84, 2.367), (43.70, 7.26)) # Paris -> Nice
         683.85...
 
         Case of unknown location.
 
-        >>> NeoBase.haversine(None, (43.70, 7.26)) # returns None
+        >>> NeoBase.distance_between_locations(None, (43.70, 7.26)) # returns None
         """
         if l0 is None or l1 is None:
             return None
 
-        lat_0 = l0[0] / 180 * pi
-        lng_0 = l0[1] / 180 * pi
-        lat_1 = l1[0] / 180 * pi
-        lng_1 = l1[1] / 180 * pi
+        l0_lat = l0[0] / 180 * pi
+        l0_lng = l0[1] / 180 * pi
+        l1_lat = l1[0] / 180 * pi
+        l1_lng = l1[1] / 180 * pi
 
         # Haversine formula (6371 is Earth radius)
         return 2 * 6371.0 * asin(sqrt(
-            sin(0.5 * (lat_0 - lat_1)) ** 2 +
-            sin(0.5 * (lng_0 - lng_1)) ** 2 *
-            cos(lat_0) * cos(lat_1)
+            sin(0.5 * (l0_lat - l1_lat)) ** 2 +
+            sin(0.5 * (l0_lng - l1_lng)) ** 2 *
+            cos(l0_lat) * cos(l1_lat)
         ))
 
 
@@ -282,8 +282,8 @@ class NeoBase(object):
         >>> b.distance('ORY', 'CDG')
         34.87...
         """
-        return self.haversine(self.get_location(key_0),
-                              self.get_location(key_1))
+        return self.distance_between_locations(self.get_location(key_0),
+                                               self.get_location(key_1))
 
 
     def _build_distances(self, lat_lng_ref, keys):
@@ -303,18 +303,18 @@ class NeoBase(object):
             if key in self:
                 lat_lng = self.get_location(key)
                 if lat_lng is not None:
-                    yield self.haversine(lat_lng_ref, lat_lng), key
+                    yield self.distance_between_locations(lat_lng_ref, lat_lng), key
 
 
-    def find_near_point(self, lat_lng, radius=_DEFAULT_RADIUS, from_keys=None):
+    def find_near_location(self, lat_lng, radius=_DEFAULT_RADIUS, from_keys=None):
         """
-        Returns a list of nearby keys from a point (given
+        Returns a list of nearby keys from a location (given
         latidude and longitude), and a radius for the search.
         Note that the haversine function, which compute distance
         at the surface of a sphere, here returns kilometers,
         so the radius should be in kms.
 
-        :param lat_lng: the lat_lng of the point
+        :param lat_lng: the lat_lng of the location
         :param radius:  the radius of the search (kilometers)
         :param from_keys: if None, it takes all keys in consideration, else takes from_keys \
             iterable of keys to perform search.
@@ -322,7 +322,7 @@ class NeoBase(object):
 
         >>> b = NeoBase()
         >>> # Paris, airports <= 50km
-        >>> [b.get(k, 'iata_code') for d, k in sorted(b.find_near_point((48.84, 2.367), 10))]
+        >>> [b.get(k, 'iata_code') for d, k in sorted(b.find_near_location((48.84, 2.367), 10))]
         ['PAR', 'XGB', 'XHP', 'XPG', 'XEX', 'XTT', 'QAF', 'JDP', 'XBT', 'QNL', 'QBH', 'QFC', 'QEV']
         """
         if from_keys is None:
@@ -333,21 +333,21 @@ class NeoBase(object):
                 yield dist, key
 
 
-    def find_near_key(self, key, radius=_DEFAULT_RADIUS, from_keys=None):
+    def find_near(self, key, radius=_DEFAULT_RADIUS, from_keys=None):
         """
-        Same as find_near_point, except the point is given
+        Same as find_near_location, except the location is given
         not by a lat/lng, but with its key, like ORY or SFO.
         We just look up in the base to retrieve lat/lng, and
-        call find_near_point.
+        call find_near_location.
 
-        :param key:     the key of the point
+        :param key:     the key of the location
         :param radius:  the radius of the search (kilometers)
         :param from_keys: if None, it takes all keys in consideration, else takes from_keys \
             iterable of keys to perform search.
         :returns:       a list of keys (like ['ORY', 'CDG'])
 
         >>> b = NeoBase()
-        >>> sorted(b.find_near_key('ORY', 10)) # Orly, por <= 10km
+        >>> sorted(b.find_near('ORY', 10)) # Orly, por <= 10km
         [(0.0, 'ORY'), (6.94..., 'XJY'), (9.96..., 'QFC')]
         """
         if from_keys is None:
@@ -356,34 +356,34 @@ class NeoBase(object):
         if key not in self:
             return
 
-        for dist, key in self.find_near_point(self.get_location(key),
-                                                radius=radius,
-                                                from_keys=from_keys):
+        for dist, key in self.find_near_location(self.get_location(key),
+                                                 radius=radius,
+                                                 from_keys=from_keys):
             yield dist, key
 
 
-    def find_closest_from_point(self, lat_lng, N=1, from_keys=None):
+    def find_closest_from_location(self, lat_lng, N=1, from_keys=None):
         """
-        Concept close to find_near_point, but here we do not
-        look for the keys radius-close to a point,
-        we look for the closest key from this point, given by
+        Concept close to find_near_location, but here we do not
+        look for the keys radius-close to a location,
+        we look for the closest key from this location, given by
         latitude/longitude.
 
         Note that a similar implementation is done in
-        the LocalHelper, to find efficiently N closest point
-        in a graph, from a point (using heaps).
+        the LocalHelper, to find efficiently N closest location
+        in a graph, from a location (using heaps).
 
-        :param lat_lng:   the lat_lng of the point
+        :param lat_lng:   the lat_lng of the location
         :param N:         the N closest results wanted
         :param from_keys: if None, it takes all keys in consideration, else takes from_keys \
-            iterable of keys to perform find_closest_from_point. This is useful to combine \
+            iterable of keys to perform find_closest_from_location. This is useful to combine \
             searches
         :returns:   one key (like 'SFO'), or a list if approximate is not None
 
         >>> b = NeoBase()
-        >>> list(b.find_closest_from_point((43.70, 7.26))) # Nice
+        >>> list(b.find_closest_from_location((43.70, 7.26))) # Nice
         [(0.60..., 'NCE@1')]
-        >>> list(b.find_closest_from_point((43.70, 7.26), N=3)) # Nice
+        >>> list(b.find_closest_from_location((43.70, 7.26), N=3)) # Nice
         [(0.60..., 'NCE@1'), (5.82..., 'NCE'), (5.89..., 'XBM')]
         """
         if from_keys is None:
