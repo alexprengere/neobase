@@ -162,6 +162,18 @@ class NeoBase(object):
         return len(self._data)
 
 
+    def keys(self):
+        """Returns iterator of all keys in the base.
+
+        :returns: the iterator of all keys
+
+        >>> b = NeoBase()
+        >>> sorted(b.keys())
+        ['AAA', 'AAA@1', 'AAB', 'AAC', 'AAC@1', ...
+        """
+        return iter(self)
+
+
     def set(self, key, **kwargs):
         """Set information.
 
