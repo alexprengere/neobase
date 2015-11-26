@@ -11,9 +11,6 @@ with open('VERSION') as f:
 with open('README.md') as fl:
     LONG_DESCRIPTION = fl.read()
 
-with open('requirements.txt') as f:
-    REQUIREMENTS = [p.strip() for p in f.readlines()]
-
 setup(
     name='NeoBase',
     version=VERSION,
@@ -24,7 +21,9 @@ setup(
     long_description=LONG_DESCRIPTION,
     packages=find_packages(),
     include_package_data=True,
-    install_requires=REQUIREMENTS,
+    install_requires=[
+        'argparse',
+    ],
     entry_points={
         'console_scripts' : [
             'NeoBase=neobase.neobase:main'
