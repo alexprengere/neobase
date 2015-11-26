@@ -24,3 +24,15 @@ Minimalist [GeoBases](http://opentraveldata.github.com/geobases/) implementation
 LatLng(lat=48.72..., lng=2.35...)
 
 ```
+
+## Installation
+
+```bash
+pip install --user .
+```
+
+## Tests
+
+```bash
+tox # or detox ;)
+```
