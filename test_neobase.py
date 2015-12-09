@@ -14,3 +14,10 @@ def test_duplicates(base):
     assert base.get('NCE', '__dup__') == set(['NCE@1'])
     assert base.get('NCE@1', '__dup__') == set(['NCE'])
 
+
+def test_benchmark_get(benchmark, base):
+    benchmark(base.get, 'NCE')
+
+def test_benchmark_get_name(benchmark, base):
+    benchmark(base.get, 'NCE', 'name')
+
