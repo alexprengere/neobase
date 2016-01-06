@@ -52,8 +52,10 @@ _SPLITS = (
 
 _KEY = 0 # iata_code
 
-
 LatLng = namedtuple('LatLng', ['lat', 'lng'])
+
+# Sentinel value for signatures
+_sentinel = object()
 
 
 class NeoBase(object):
@@ -174,7 +176,7 @@ class NeoBase(object):
         return iter(self)
 
 
-    def set(self, key, **kwargs):
+    def set(self, key, **data):
         """Set information.
 
         >>> b = NeoBase()
@@ -189,10 +191,10 @@ class NeoBase(object):
         """
         if key not in self:
             self._data[key] = self._empty_value()
-        self._data[key].update(kwargs)
+        self._data[key].update(data)
 
 
-    def get(self, key, field=None, **kwargs):
+    def get(self, key, field=None, default=_sentinel):
         """Get data from structure.
 
         >>> b = NeoBase()
@@ -204,10 +206,9 @@ class NeoBase(object):
             d = self._data[key]
         except KeyError:
             # Unless default is set, we raise an Exception
-            if 'default' in kwargs:
-                return kwargs['default']
-            else:
+            if default is _sentinel:
                 raise KeyError("Key not found: {0}".format(key))
+            return default
 
         if field is None:
             return d # we return the whole dictionary
@@ -221,7 +222,7 @@ class NeoBase(object):
             return res
 
 
-    def get_location(self, key, **kwargs):
+    def get_location(self, key, default=_sentinel):
         """Get None or the geocode.
 
         >>> b = NeoBase()
@@ -230,10 +231,9 @@ class NeoBase(object):
         """
         if key not in self:
             # Unless default is set, we raise an Exception
-            if 'default' in kwargs:
-                return kwargs['default']
-            else:
+            if default is _sentinel:
                 raise KeyError("Key not found: {0}".format(key))
+            return default
 
         try:
             loc = LatLng(float(self.get(key, 'lat')),
