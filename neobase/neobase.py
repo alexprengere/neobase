@@ -19,6 +19,7 @@ GeoBase. Rebooted.
 
 from __future__ import with_statement, print_function, division
 
+from os import getenv
 import os.path as op
 import csv
 import heapq
@@ -28,7 +29,7 @@ from math import pi, cos, sin, asin, sqrt
 __all__ = ['NeoBase', 'LatLng']
 
 _DIR = op.dirname(__file__)
-_FILE_PATH = op.join(_DIR, 'optd_por_public.csv')
+_OPTD_POR_FILE = getenv('OPTD_POR_FILE', op.join(_DIR, 'optd_por_public.csv'))
 _DEFAULT_RADIUS = 50
 
 _FIELDS = (
@@ -63,7 +64,7 @@ class NeoBase(object):
     """
     def __init__(self, rows=None):
         if rows is None:
-            with open(_FILE_PATH) as f:
+            with open(_OPTD_POR_FILE) as f:
                 self._data = self.load(f)
         else:
             self._data = self.load(rows)
