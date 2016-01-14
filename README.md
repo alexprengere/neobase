@@ -31,6 +31,10 @@ LatLng(lat=48.72..., lng=2.35...)
 pip install --user .
 ```
 
+## Doc
+
+Check out [readthedocs](http://neobase.readthedocs.org/en/latest/).
+
 ## Tests
 
 ```bash
