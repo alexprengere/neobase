@@ -397,7 +397,7 @@ class NeoBase(object):
         >>> list(b.find_closest_from_location((43.70, 7.26))) # Nice
         [(0.60..., 'NCE@1')]
         >>> list(b.find_closest_from_location((43.70, 7.26), N=3)) # Nice
-        [(0.60..., 'NCE@1'), (5.82..., 'NCE'), (5.89..., 'XBM')]
+        [(0.60..., 'NCE@1'), (5.08..., 'III'), (5.82..., 'NCE')]
         """
         if from_keys is None:
             from_keys = iter(self)
@@ -461,4 +461,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
