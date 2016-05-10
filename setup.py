@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 with open('VERSION') as f:
     VERSION = f.read().rstrip()
 
-with open('README.md') as fl:
+with open('README.rst') as fl:
     LONG_DESCRIPTION = fl.read()
 
 setup(
