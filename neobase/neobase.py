@@ -21,10 +21,11 @@ from __future__ import with_statement, print_function, division
 
 from os import getenv
 import os.path as op
-import csv
-import heapq
+import operator
 from collections import namedtuple
 from math import pi, cos, sin, asin, sqrt
+import csv
+import heapq
 
 __all__ = ['NeoBase', 'LatLng']
 
@@ -51,7 +52,7 @@ _SPLITS = (
     ('location_type', list),
 )
 
-_KEY = 0 # iata_code
+_KEY = 0  # iata_code
 
 LatLng = namedtuple('LatLng', ['lat', 'lng'])
 
@@ -69,11 +70,9 @@ class NeoBase(object):
         else:
             self._data = self.load(rows)
 
-
     @staticmethod
     def _empty_value():
         return {'__dup__': set()}
-
 
     @classmethod
     def load(cls, f):
@@ -86,7 +85,7 @@ class NeoBase(object):
         ['PAR']
         """
         data = {}
-        next(f) # skipping first line
+        next(f)  # skipping first line
 
         for row in csv.reader(f, delimiter='^', quotechar='"'):
             # Comments and empty lines
@@ -112,7 +111,6 @@ class NeoBase(object):
 
         return data
 
-
     def __iter__(self):
         """Returns iterator of all keys in the base.
 
@@ -123,7 +121,6 @@ class NeoBase(object):
         ['AAA', 'AAA@1', 'AAB', 'AAC', 'AAC@1', ...
         """
         return iter(self._data)
-
 
     def __contains__(self, key):
         """Test if a key is in the base.
@@ -139,7 +136,6 @@ class NeoBase(object):
         """
         return key in self._data
 
-
     def __nonzero__(self):
         """Testing structure emptiness.
 
@@ -152,7 +148,6 @@ class NeoBase(object):
         """
         return bool(self._data)
 
-
     def __len__(self):
         """Testing structure size.
 
@@ -164,7 +159,6 @@ class NeoBase(object):
         """
         return len(self._data)
 
-
     def keys(self):
         """Returns iterator of all keys in the base.
 
@@ -175,7 +169,6 @@ class NeoBase(object):
         ['AAA', 'AAA@1', 'AAB', 'AAC', 'AAC@1', ...
         """
         return iter(self)
-
 
     def set(self, key, **data):
         """Set information.
@@ -194,7 +187,6 @@ class NeoBase(object):
             self._data[key] = self._empty_value()
         self._data[key].update(data)
 
-
     def get(self, key, field=None, default=_sentinel):
         """Get data from structure.
 
@@ -212,7 +204,7 @@ class NeoBase(object):
             return default
 
         if field is None:
-            return d # we return the whole dictionary
+            return d  # we return the whole dictionary
 
         try:
             res = d[field]
@@ -221,7 +213,6 @@ class NeoBase(object):
                 field, key, list(d)))
         else:
             return res
-
 
     def get_location(self, key, default=_sentinel):
         """Get None or the geocode.
@@ -248,7 +239,6 @@ class NeoBase(object):
             return None
         else:
             return loc
-
 
     @staticmethod
     def distance_between_locations(l0, l1):
@@ -280,7 +270,6 @@ class NeoBase(object):
             cos(l0_lat) * cos(l1_lat)
         ))
 
-
     def distance(self, key_0, key_1):
         """Compute distance between two elements.
 
@@ -297,7 +286,6 @@ class NeoBase(object):
         """
         return self.distance_between_locations(self.get_location(key_0),
                                                self.get_location(key_1))
-
 
     def _build_distances(self, lat_lng_ref, keys):
         """
@@ -317,7 +305,6 @@ class NeoBase(object):
                 lat_lng = self.get_location(key)
                 if lat_lng is not None:
                     yield self.distance_between_locations(lat_lng_ref, lat_lng), key
-
 
     def find_near_location(self, lat_lng, radius=_DEFAULT_RADIUS, from_keys=None):
         """
@@ -344,7 +331,6 @@ class NeoBase(object):
         for dist, key in self._build_distances(lat_lng, from_keys):
             if dist <= radius:
                 yield dist, key
-
 
     def find_near(self, key, radius=_DEFAULT_RADIUS, from_keys=None):
         """
@@ -373,7 +359,6 @@ class NeoBase(object):
                                                  radius=radius,
                                                  from_keys=from_keys):
             yield dist, key
-
 
     def find_closest_from_location(self, lat_lng, N=1, from_keys=None):
         """
@@ -407,7 +392,6 @@ class NeoBase(object):
         for dist, key in heapq.nsmallest(N, iterable):
             yield dist, key
 
-
     def find_with(self, conditions, from_keys=None, reverse=False):
         """Get iterator of all keys with particular field.
 
@@ -432,10 +416,7 @@ class NeoBase(object):
         if from_keys is None:
             from_keys = iter(self)
 
-        if not reverse:
-            match = lambda a, b: a == b
-        else:
-            match = lambda a, b: a != b
+        match = operator.ne if reverse else operator.eq
 
         for key in from_keys:
             if key in self:
