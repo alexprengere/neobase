@@ -118,7 +118,7 @@ class NeoBase(object):
 
         >>> b = NeoBase()
         >>> sorted(b)
-        ['AAA', 'AAA@1', 'AAB', 'AAC', 'AAC@1', ...
+        ['AAA', 'AAA@1', 'AAB', ...
         """
         return iter(self._data)
 
@@ -166,7 +166,7 @@ class NeoBase(object):
 
         >>> b = NeoBase()
         >>> sorted(b.keys())
-        ['AAA', 'AAA@1', 'AAB', 'AAC', 'AAC@1', ...
+        ['AAA', 'AAA@1', 'AAB', ...
         """
         return iter(self)
 
@@ -382,7 +382,7 @@ class NeoBase(object):
         >>> list(b.find_closest_from_location((43.70, 7.26))) # Nice
         [(0.60..., 'NCE@1')]
         >>> list(b.find_closest_from_location((43.70, 7.26), N=3)) # Nice
-        [(0.60..., 'NCE@1'), (5.08..., 'III'), (5.82..., 'NCE')]
+        [(0.60..., 'NCE@1'), (5.82..., 'NCE'), (5.89..., 'XBM')]
         """
         if from_keys is None:
             from_keys = iter(self)
