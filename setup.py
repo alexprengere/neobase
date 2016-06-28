@@ -17,7 +17,7 @@ setup(
     author='Alex Prengère',
     author_email='alex.prengere@gmail.com',
     url='https://github.com/alexprengere/neobase',
-    description='Optd Python API.',
+    description='Lightweight GeoBases implementation: no dependency, single, Py3 compatible',
     long_description=LONG_DESCRIPTION,
     packages=find_packages(),
     include_package_data=True,
