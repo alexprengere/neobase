@@ -11,6 +11,9 @@ with open('VERSION') as f:
 with open('README.rst') as fl:
     LONG_DESCRIPTION = fl.read()
 
+with open('LICENSE') as fl:
+    LICENSE = fl.read()
+
 setup(
     name='NeoBase',
     version=VERSION,
@@ -19,6 +22,7 @@ setup(
     url='https://github.com/alexprengere/neobase',
     description='Lightweight GeoBases implementation: no dependency, single, Py3 compatible',
     long_description=LONG_DESCRIPTION,
+    license=LICENSE,
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
