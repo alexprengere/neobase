@@ -8,11 +8,11 @@ from setuptools import setup, find_packages
 with open('VERSION') as f:
     VERSION = f.read().rstrip()
 
-with open('README.rst') as fl:
-    LONG_DESCRIPTION = fl.read()
+with open('README.rst') as f:
+    LONG_DESCRIPTION = f.read()
 
-with open('LICENSE') as fl:
-    LICENSE = fl.read()
+with open('LICENSE') as f:
+    LICENSE = f.read()
 
 setup(
     name='NeoBase',
