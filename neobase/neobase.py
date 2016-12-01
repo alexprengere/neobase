@@ -31,28 +31,8 @@ __all__ = ['NeoBase', 'LatLng']
 
 _DIR = op.dirname(__file__)
 _OPTD_POR_FILE = getenv('OPTD_POR_FILE', op.join(_DIR, 'optd_por_public.csv'))
+
 _DEFAULT_RADIUS = 50
-
-_FIELDS = (
-    ('iata_code', 0),
-    ('name', 6),
-    ('lat', 8),
-    ('lng', 9),
-    ('country_code', 16),
-    ('continent_name', 19),
-    ('timezone', 31),
-    ('city_code_list', 36),
-    ('city_name_list', 37),
-    ('location_type', 41),
-)
-
-_SPLITS = (
-    ('city_code_list', lambda s: s.split(',')),
-    ('city_name_list', lambda s: s.split('=')),
-    ('location_type', list),
-)
-
-_KEY = 0  # iata_code
 
 LatLng = namedtuple('LatLng', ['lat', 'lng'])
 
@@ -63,6 +43,20 @@ _sentinel = object()
 class NeoBase(object):
     """Main structure, a wrapper around a dict, with dict-like behavior.
     """
+    KEY = 0
+    FIELDS = (
+        ('iata_code', 0, None),
+        ('name', 6, None),
+        ('lat', 8, None),
+        ('lng', 9, None),
+        ('country_code', 16, None),
+        ('continent_name', 19, None),
+        ('timezone', 31, None),
+        ('city_code_list', 36, lambda s: s.split(',')),
+        ('city_name_list', 37, lambda s: s.split('=')),
+        ('location_type', 41, list),
+    )
+
     def __init__(self, rows=None):
         if rows is None:
             with open(_OPTD_POR_FILE) as f:
@@ -84,30 +78,33 @@ class NeoBase(object):
         >>> b['ORY']['city_code_list']
         ['PAR']
         """
-        data = {}
+        fields, key_c = cls.FIELDS, cls.KEY
+
         next(f)  # skipping first line
+        data = {}
 
         for row in csv.reader(f, delimiter='^', quotechar='"'):
             # Comments and empty lines
             if not row or row[0].startswith('#'):
                 continue
 
-            key = row[_KEY]
+            d = cls._empty_value()
+            for field, c, splitter in fields:
+                if splitter is None:
+                    d[field] = row[c]
+                else:
+                    d[field] = splitter(row[c])
+
+            key = row[key_c]
             if key not in data:
-                data[key] = d = cls._empty_value()
+                data[key] = d
             else:
                 prev_d = data[key]
                 new_key = '{0}@{1}'.format(key, 1 + len(prev_d['__dup__']))
-                data[new_key] = d = cls._empty_value()
+                data[new_key] = d
                 # Exchanging duplicata information
                 d['__dup__'] = prev_d['__dup__'] | set([key])
                 prev_d['__dup__'].add(new_key)
-
-            for field, c in _FIELDS:
-                d[field] = row[c]
-
-            for field, splitter in _SPLITS:
-                d[field] = splitter(d[field])
 
         return data
 
