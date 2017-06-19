@@ -78,7 +78,7 @@ class NeoBase(object):
         >>> b['ORY']['city_code_list']
         ['PAR']
         """
-        fields, key_c = cls.FIELDS, cls.KEY
+        fields, key_c, empty_value = cls.FIELDS, cls.KEY, cls._empty_value
 
         next(f)  # skipping first line
         data = {}
@@ -88,7 +88,7 @@ class NeoBase(object):
             if not row or row[0].startswith('#'):
                 continue
 
-            d = cls._empty_value()
+            d = empty_value()
             for field, c, splitter in fields:
                 if splitter is None:
                     d[field] = row[c]
