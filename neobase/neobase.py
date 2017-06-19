@@ -406,7 +406,7 @@ class NeoBase(object):
         >>> len(list(b.find_with(c0)))
         17
         >>> len(list(b.find_with(c1)))
-        141
+        140
         >>> len(list(b.find_with(c0 + c1)))
         2
         """
