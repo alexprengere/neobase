@@ -57,6 +57,11 @@ class NeoBase(object):
         ('location_type', 41, list),
     )
 
+    @staticmethod
+    def skip(row):
+        # This column is the date_until, meaning if this is not empty, the entry is now obsolete
+        return bool(row[14])
+
     def __init__(self, rows=None):
         if rows is None:
             with open(_OPTD_POR_FILE) as f:
@@ -86,6 +91,9 @@ class NeoBase(object):
         for row in csv.reader(f, delimiter='^', quotechar='"'):
             # Comments and empty lines
             if not row or row[0].startswith('#'):
+                continue
+
+            if cls.skip(row):
                 continue
 
             d = empty_value()
@@ -404,9 +412,9 @@ class NeoBase(object):
         >>> c0 = [('city_code_list', ['PAR'])]
         >>> c1 = [('location_type', ['H'])]
         >>> len(list(b.find_with(c0)))
-        17
+        16
         >>> len(list(b.find_with(c1)))
-        140
+        121
         >>> len(list(b.find_with(c0 + c1)))
         2
         """
