@@ -56,6 +56,7 @@ class NeoBase(object):
         ('city_name_list', 37, lambda s: s.split('=')),
         ('location_type', 41, list),
     )
+    DUPLICATES = True
 
     @staticmethod
     def skip(row):
@@ -83,7 +84,8 @@ class NeoBase(object):
         >>> b['ORY']['city_code_list']
         ['PAR']
         """
-        fields, key_c, empty_value = cls.FIELDS, cls.KEY, cls._empty_value
+        fields, key_c, duplicates = cls.FIELDS, cls.KEY, cls.DUPLICATES
+        empty_value = cls._empty_value
 
         next(f)  # skipping first line
         data = {}
@@ -106,7 +108,7 @@ class NeoBase(object):
             key = row[key_c]
             if key not in data:
                 data[key] = d
-            else:
+            elif duplicates:
                 prev_d = data[key]
                 new_key = '{0}@{1}'.format(key, 1 + len(prev_d['__dup__']))
                 data[new_key] = d
