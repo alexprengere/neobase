@@ -415,8 +415,6 @@ class NeoBase(object):
         >>> c1 = [('location_type', ['H'])]
         >>> len(list(b.find_with(c0)))
         16
-        >>> len(list(b.find_with(c1)))
-        124
         >>> len(list(b.find_with(c0 + c1)))
         2
         """
