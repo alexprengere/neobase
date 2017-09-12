@@ -1,6 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import pytz
+import pytest
+
 
 def test_get(base):
     assert base.get('CDG', 'city_code_list') == ['PAR']
@@ -29,3 +32,23 @@ def test_benchmark_get(benchmark, base):
 
 def test_benchmark_get_name(benchmark, base):
     benchmark(base.get, 'NCE', 'name')
+
+
+def test_timezones(base):
+    tz_cache = set()
+    unknown_tz = []
+
+    for por in base:
+        data = base.get(por)
+        tz = data['timezone']
+        if tz not in tz_cache:
+            tz_cache.add(tz)
+            try:
+                pytz.timezone(tz)
+            except pytz.exceptions.UnknownTimeZoneError:
+                unknown_tz.append((por, tz))
+
+    if unknown_tz:
+        pytest.fail('Unknown timezone for {0}/{1} pors: {2}'.format(
+                    len(unknown_tz), len(base),
+                    ', '.join('{0} ({1})'.format(*t) for t in unknown_tz)))
