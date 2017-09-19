@@ -29,8 +29,7 @@ import heapq
 
 __all__ = ['NeoBase', 'LatLng']
 
-_DIR = op.dirname(__file__)
-_OPTD_POR_FILE = getenv('OPTD_POR_FILE', op.join(_DIR, 'optd_por_public.csv'))
+_DEF_OPTD_POR_FILE = op.join(op.dirname(__file__), 'optd_por_public.csv')
 
 _DEFAULT_RADIUS = 50
 
@@ -65,7 +64,8 @@ class NeoBase(object):
 
     def __init__(self, rows=None):
         if rows is None:
-            with open(_OPTD_POR_FILE) as f:
+            filename = getenv('OPTD_POR_FILE', _DEF_OPTD_POR_FILE)
+            with open(filename) as f:
                 self._data = self.load(f)
         else:
             self._data = self.load(rows)
@@ -78,7 +78,7 @@ class NeoBase(object):
     def load(cls, f):
         """Building a dictionary of geographical data from optd_por.
 
-        >>> path = op.join(_DIR, 'optd_por_public.csv')
+        >>> path = op.join(op.dirname(__file__), 'optd_por_public.csv')
         >>> with open(path) as f:
         ...     b = NeoBase.load(f)
         >>> b['ORY']['city_code_list']
