@@ -63,3 +63,40 @@ def test_geocodes(base):
 
     if missing_geocodes:
         pytest.fail('Missing geocodes for: {0}'.format(', '.join(missing_geocodes)))
+
+
+class TestReferenceData(object):
+    """
+    IATA codes can be shared between an airport and the associated city, like NCE
+    which represents both the airport and the city. In that case, we want the airport
+    to have "priority" when getting metadata for the point of reference. That is
+    what we test first here. This relies on the fact that airports are loaded first
+    in the optd_por_public.csv file.
+
+    Note that in recent version of NeoBase (0.15+), there are no longer shared IATA
+    codes between airports since obsolete point of references are no longer loaded.
+    This is the second test.
+    """
+
+    def test_airport_priority_over_city(self, base):
+        assert base.get('NCE', 'name') == "Nice Côte d'Azur International Airport"
+        assert base.get('MAD', 'name') == "Adolfo Suárez Madrid–Barajas Airport"
+
+        # Checking top 10 page rank of duplicated airport/city with same IATA code
+        assert base.get('ATL', 'name') == "Hartsfield-Jackson Atlanta International Airport"
+        assert base.get('DXB', 'name') == "Dubai International Airport"
+        assert base.get('LAX', 'name') == "Los Angeles International Airport"
+        assert base.get('SYD', 'name') == "Sydney International Airport"
+        assert base.get('IST', 'name') == "Istanbul Atatürk Airport"
+        assert base.get('SEA', 'name') == "Seattle-Tacoma International Airport"
+        assert base.get('DFW', 'name') == "Dallas/Fort Worth International Airport"
+        assert base.get('DEN', 'name') == "Denver International Airport"
+        assert base.get('FRA', 'name') == "Frankfurt Airport"
+        assert base.get('AMS', 'name') == "Amsterdam Airport Schiphol"
+
+    def test_obsolete_por_are_not_loaded(self, base):
+        assert base.get('KMG', 'name') == "Kunming Changshui International Airport"
+        assert base.get('HFE', 'name') == "Hefei Xinqiao International Airport"
+        assert base.get('NAT', 'name') == "Greater Natal International Airport"
+        assert base.get('JIJ', 'name') == "Jijiga Wilwal International Airport"
+        assert base.get('SWA', 'name') == "Jieyang Chaoshan Airport"
