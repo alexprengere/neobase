@@ -52,3 +52,14 @@ def test_timezones(base):
         pytest.fail('Unknown timezone for {0}/{1} pors: {2}'.format(
                     len(unknown_tz), len(base),
                     ', '.join('{0} ({1})'.format(*t) for t in unknown_tz)))
+
+
+def test_geocodes(base):
+    missing_geocodes = []
+
+    for por in base:
+        if base.get_location(por) is None:
+            missing_geocodes.append(por)
+
+    if missing_geocodes:
+        pytest.fail('Missing geocodes for: {0}'.format(', '.join(missing_geocodes)))
