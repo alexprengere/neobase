@@ -8,6 +8,6 @@ Welcome to NeoBase's documentation!
 
 .. automodule:: neobase.neobase
     :members:
+    :special-members: __init__
     :undoc-members:
     :show-inheritance:
-
