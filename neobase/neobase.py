@@ -20,14 +20,6 @@ GeoBase. Rebooted.
 from __future__ import with_statement, print_function, division
 
 import sys
-PY3 = sys.version_info[0] >= 3
-if PY3:
-    import io
-    from functools import partial
-    open_ = partial(io.open, encoding='utf-8')
-else:
-    open_ = open
-
 from os import getenv
 import os.path as op
 import operator
@@ -35,6 +27,13 @@ from collections import namedtuple
 from math import pi, cos, sin, asin, sqrt
 import csv
 import heapq
+
+PY3 = sys.version_info[0] >= 3
+if PY3:
+    from functools import partial
+    open_ = partial(open, encoding='utf-8')
+else:
+    open_ = open
 
 __all__ = ['NeoBase', 'LatLng']
 
