@@ -19,6 +19,15 @@ GeoBase. Rebooted.
 
 from __future__ import with_statement, print_function, division
 
+import sys
+PY3 = sys.version_info[0] >= 3
+if PY3:
+    import io
+    from functools import partial
+    open_ = partial(io.open, encoding='utf-8')
+else:
+    open_ = open
+
 from os import getenv
 import os.path as op
 import operator
@@ -30,9 +39,7 @@ import heapq
 __all__ = ['NeoBase', 'LatLng']
 
 _DEF_OPTD_POR_FILE = op.join(op.dirname(__file__), 'optd_por_public.csv')
-
 _DEFAULT_RADIUS = 50
-
 LatLng = namedtuple('LatLng', ['lat', 'lng'])
 
 # Sentinel value for signatures
@@ -65,7 +72,7 @@ class NeoBase(object):
     def __init__(self, rows=None):
         if rows is None:
             filename = getenv('OPTD_POR_FILE', _DEF_OPTD_POR_FILE)
-            with open(filename) as f:
+            with open_(filename) as f:
                 self._data = self.load(f)
         else:
             self._data = self.load(rows)
@@ -79,7 +86,7 @@ class NeoBase(object):
         """Building a dictionary of geographical data from optd_por.
 
         >>> path = op.join(op.dirname(__file__), 'optd_por_public.csv')
-        >>> with open(path) as f:
+        >>> with open_(path) as f:
         ...     b = NeoBase.load(f)
         >>> b['ORY']['city_code_list']
         ['PAR']
