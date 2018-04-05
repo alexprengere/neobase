@@ -104,6 +104,10 @@ class NeoBase(object):
             if cls.skip(row):
                 continue
 
+            key = row[key_c]
+            if key in data and not duplicates:
+                continue
+
             d = empty_value()
             for field, c, splitter in fields:
                 if splitter is None:
@@ -111,10 +115,9 @@ class NeoBase(object):
                 else:
                     d[field] = splitter(row[c])
 
-            key = row[key_c]
             if key not in data:
                 data[key] = d
-            elif duplicates:
+            else:
                 prev_d = data[key]
                 new_key = '{0}@{1}'.format(key, 1 + len(prev_d['__dup__']))
                 data[new_key] = d
