@@ -335,8 +335,8 @@ class NeoBase(object):
 
         >>> b = NeoBase()
         >>> # Paris, airports <= 50km
-        >>> [b.get(k, 'iata_code') for d, k in sorted(b.find_near_location((48.84, 2.367), 10))]
-        ['PAR', 'XGB', 'XHP', 'XPG', 'XEX', 'XTT', 'QAF', 'JDP', 'XBT', 'QNL', 'QBH', 'QFC', 'QEV']
+        >>> [b.get(k, 'iata_code') for d, k in sorted(b.find_near_location((48.84, 2.367), 5))]
+        ['PAR', 'XGB', 'XHP', 'XPG', 'XEX']
         """
         if from_keys is None:
             from_keys = iter(self)
