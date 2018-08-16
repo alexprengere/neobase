@@ -105,6 +105,9 @@ class NeoBase(object):
                 continue
 
             key = row[key_c]
+            if key == 'ZZZ':
+                continue
+
             if key in data and not duplicates:
                 continue
 
