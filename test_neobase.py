@@ -65,6 +65,13 @@ def test_geocodes(base):
         pytest.fail('Missing geocodes for: {0}'.format(', '.join(missing_geocodes)))
 
 
+def test_duplicate_airports(base):
+    for k in base:
+        duplicates = set([k]) | base.get(k, '__dup__')
+        if len([d for d in duplicates if 'A' in base.get(d, 'location_type')]) > 1:
+            pytest.fail('Duplicated airport code: {0}'.format(k))
+
+
 class TestReferenceData(object):
     """
     IATA codes can be shared between an airport and the associated city, like NCE
