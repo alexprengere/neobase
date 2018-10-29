@@ -54,7 +54,7 @@ def test_timezones(base):
                     ', '.join('{0} ({1})'.format(*t) for t in unknown_tz)))
 
 
-def test_geocodes(base):
+def test_missing_geocodes(base):
     missing_geocodes = []
 
     for por in base:
@@ -63,6 +63,20 @@ def test_geocodes(base):
 
     if missing_geocodes:
         pytest.fail('Missing geocodes for: {0}'.format(', '.join(missing_geocodes)))
+
+
+def test_empty_geocodes(base):
+    empty_geocodes = []
+
+    for por in base:
+        loc = base.get_location(por)
+        if loc is not None:
+            lat, lng = loc
+            if lat == 0 or lng == 0:
+                empty_geocodes.append(por)
+
+    if empty_geocodes:
+        pytest.fail('Empty lat/lng for: {0}'.format(', '.join(empty_geocodes)))
 
 
 def test_duplicate_airports(base):
