@@ -48,18 +48,21 @@ _sentinel = object()
 class NeoBase(object):
     """Main structure, a wrapper around a dict, with dict-like behavior.
     """
-    KEY = 0
+    KEY = 0  # iata_code
     FIELDS = (
         ('iata_code', 0, None),
         ('name', 6, None),
         ('lat', 8, None),
         ('lng', 9, None),
+        ('page_rank', 12, lambda s: float(s) if s else None),
         ('country_code', 16, None),
+        ('country_name', 18, None),
         ('continent_name', 19, None),
         ('timezone', 31, None),
         ('city_code_list', 36, lambda s: s.split(',')),
         ('city_name_list', 37, lambda s: s.split('=')),
         ('location_type', 41, list),
+        ('currency', 46, None),
     )
     DUPLICATES = True
 
