@@ -52,4 +52,4 @@ Tests
 
 .. code:: bash
 
-    tox # or detox ;)
+    tox
