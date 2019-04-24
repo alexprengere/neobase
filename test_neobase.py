@@ -108,7 +108,7 @@ class TestReferenceData(object):
         assert base.get('DXB', 'name') == "Dubai International Airport"
         assert base.get('LAX', 'name') == "Los Angeles International Airport"
         assert base.get('SYD', 'name') == "Sydney International Airport"
-        assert base.get('IST', 'name') == "Istanbul Atatürk Airport"
+        assert base.get('IST', 'name') == "Istanbul Airport"
         assert base.get('SEA', 'name') == "Seattle-Tacoma International Airport"
         assert base.get('DFW', 'name') == "Dallas/Fort Worth International Airport"
         assert base.get('DEN', 'name') == "Denver International Airport"
