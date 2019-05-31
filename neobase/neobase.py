@@ -294,9 +294,9 @@ class NeoBase(object):
 
         # Haversine formula (6371 is Earth radius)
         return 2 * 6371.0 * asin(sqrt(
-            sin(0.5 * (l0_lat - l1_lat)) ** 2 +
-            sin(0.5 * (l0_lng - l1_lng)) ** 2 *
-            cos(l0_lat) * cos(l1_lat)
+            sin(0.5 * (l0_lat - l1_lat)) ** 2
+            + sin(0.5 * (l0_lng - l1_lng)) ** 2
+            * cos(l0_lat) * cos(l1_lat)
         ))
 
     def distance(self, key_0, key_1):

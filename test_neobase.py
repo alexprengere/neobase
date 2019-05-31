@@ -30,6 +30,7 @@ def test_duplicates(base):
 def test_benchmark_get(benchmark, base):
     benchmark(base.get, 'NCE')
 
+
 def test_benchmark_get_name(benchmark, base):
     benchmark(base.get, 'NCE', 'name')
 
