@@ -86,6 +86,11 @@ def test_duplicate_airports(base):
             pytest.fail('Duplicated airport code: {0}'.format(k))
 
 
+def test_old_data(past_base, base):
+    assert 'CPQ' in past_base
+    assert 'CPQ' not in base
+
+
 class TestReferenceData(object):
     """
     IATA codes can be shared between an airport and the associated city, like NCE

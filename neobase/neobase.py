@@ -23,6 +23,7 @@ import sys
 from os import getenv
 import os.path as op
 import operator
+from datetime import datetime
 from collections import namedtuple
 from math import pi, cos, sin, asin, sqrt
 import csv
@@ -67,29 +68,35 @@ class NeoBase(object):
     DUPLICATES = True
 
     @staticmethod
-    def skip(row):
-        # This column is the date_until, meaning if this is not empty, the entry is now obsolete
-        return bool(row[14])
+    def skip(row, date):
+        date_from, date_until = row[13], row[14]
+        if date_from and date < date_from:
+            return True
+        if date_until and date > date_until:
+            return True
+        return False
 
-    def __init__(self, rows=None):
+    def __init__(self, rows=None, date=None):
+        date = datetime.today().strftime('%Y-%m-%d') if date is None else date
+
         if rows is None:
             filename = getenv('OPTD_POR_FILE', _DEF_OPTD_POR_FILE)
             with open_(filename) as f:
-                self._data = self.load(f)
+                self._data = self.load(f, date)
         else:
-            self._data = self.load(rows)
+            self._data = self.load(rows, date)
 
     @staticmethod
     def _empty_value():
         return {'__dup__': set()}
 
     @classmethod
-    def load(cls, f):
+    def load(cls, f, date):
         """Building a dictionary of geographical data from optd_por.
 
         >>> path = op.join(op.dirname(__file__), 'optd_por_public.csv')
         >>> with open_(path) as f:
-        ...     b = NeoBase.load(f)
+        ...     b = NeoBase.load(f, '2030-01-01')
         >>> b['ORY']['city_code_list']
         ['PAR']
         """
@@ -104,7 +111,7 @@ class NeoBase(object):
             if not row or row[0].startswith('#'):
                 continue
 
-            if cls.skip(row):
+            if cls.skip(row, date):
                 continue
 
             key = row[key_c]
@@ -450,8 +457,9 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument('keys', nargs='+', help="List of IATA codes")
+    parser.add_argument('--date', help="Reference date to compute active airports")
     args = parser.parse_args()
-    b = NeoBase()
+    b = NeoBase(date=args.date)
 
     for key in args.keys:
         if key in b:
