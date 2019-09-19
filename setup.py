@@ -30,7 +30,7 @@ setup(
         'argparse',
     ],
     entry_points={
-        'console_scripts' : [
+        'console_scripts': [
             'NeoBase=neobase.neobase:main'
         ]
     },
