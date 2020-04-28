@@ -83,7 +83,23 @@ You can also customize the source data when initializing:
     with open("file.csv") as f:
         N = NeoBase(f)
 
-Otherwise the loaded file will be the embedded one, unless the `OPTD_POR_FILE` environment variable is set. In that case, it will load from the path defined in that variable.
+Otherwise the loaded file will be the embedded one, unless the ``OPTD_POR_FILE`` environment variable is set. In that case, it will load from the path defined in that variable.
+
+You can manually retrieve the latest data source yourself too, but you expose yourself to some breaking changes if they occur in the data.
+
+.. code:: python
+
+    URL = ('https://raw.githubusercontent.com/opentraveldata/opentraveldata/'
+           'master/opentraveldata/optd_por_public.csv')
+
+    import urllib3
+    http = urllib3.PoolManager()
+    from io import StringIO
+    from neobase import NeoBase
+
+    text = http.request("GET", URL).data.decode("utf8")
+    N = NeoBase(StringIO(text))
+    N.get("PAR")
 
 Command-line interface
 ----------------------
