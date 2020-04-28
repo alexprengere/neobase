@@ -45,7 +45,33 @@ Or use the Python package:
 Doc
 ---
 
-Check out `readthedocs <http://neobase.readthedocs.org/en/latest/>`__.
+Check out `readthedocs <http://neobase.readthedocs.org/en/latest/>`__ for the API.
+
+You can customize fields loaded by subclassing.
+
+.. code:: python
+
+    class SubNeoBase(NeoBase):
+        KEY = 0  # iata_code
+        FIELDS = (
+            ("name", 6, None),
+            ("lat", 8, None),
+            ("lng", 9, None),
+            ("page_rank", 12, lambda s: float(s) if s else None),
+            ("country_code", 16, None),
+            ("country_name", 18, None),
+            ('continent_name', 19, None),
+            ("timezone", 31, None),
+            ("city_code_list", 36, lambda s: s.split(",")),
+            ('city_name_list', 37, lambda s: s.split('=')),
+            ('location_type', 41, None),
+            ("currency", 46, None),
+        )
+
+        # Drop duplicates, keep only the first POR with a specific key
+        DUPLICATES = False
+
+    N = SubNeoBase()
 
 Tests
 -----
