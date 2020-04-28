@@ -53,6 +53,8 @@ You can customize fields loaded by subclassing.
 
     class SubNeoBase(NeoBase):
         KEY = 0  # iata_code
+
+        # Those loaded fields are the default ones
         FIELDS = (
             ("name", 6, None),
             ("lat", 8, None),
@@ -69,9 +71,28 @@ You can customize fields loaded by subclassing.
         )
 
         # Drop duplicates, keep only the first POR with a specific key
+        # Default value is True
         DUPLICATES = False
 
     N = SubNeoBase()
+
+You can also customize the source data when initializing:
+
+.. code:: python
+
+    with open("file.csv") as f:
+        N = NeoBase(f)
+
+Otherwise the loaded file will be the embedded one, unless the `OPTD_POR_FILE` environment variable is set. In that case, it will load from the path defined in that variable.
+
+Command-line interface
+----------------------
+
+You can query the data using:
+
+.. code:: bash
+
+    python -m neobase PAR NCE
 
 Tests
 -----
