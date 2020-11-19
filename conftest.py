@@ -4,6 +4,7 @@
 import neobase
 import pytest
 
+
 @pytest.fixture
 def base():
     return neobase.NeoBase()

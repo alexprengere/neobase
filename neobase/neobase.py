@@ -103,8 +103,11 @@ class NeoBase(object):
         fields, key_c, duplicates = cls.FIELDS, cls.KEY, cls.DUPLICATES
         empty_value = cls._empty_value
 
-        next(f)  # skipping first line
         data = {}
+        try:
+            next(f)  # skipping first line
+        except StopIteration:
+            pass
 
         for row in csv.reader(f, delimiter='^', quotechar='"'):
             # Comments and empty lines

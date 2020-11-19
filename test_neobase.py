@@ -1,8 +1,19 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import os
 import pytz
 import pytest
+
+
+import neobase
+
+
+def test_empty_base():
+    N1 = neobase.NeoBase(iter([]))
+    N2 = neobase.NeoBase(open(os.devnull))
+    for N in N1, N2:
+        assert len(N) == 0
 
 
 def test_get(base):
