@@ -100,6 +100,8 @@ class NeoBase(object):
         >>> b['ORY']['city_code_list']
         ['PAR']
         """
+        f = iter(f)  # convert lists to iterators
+
         fields, key_c, duplicates = cls.FIELDS, cls.KEY, cls.DUPLICATES
         empty_value = cls._empty_value
 

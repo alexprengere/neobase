@@ -10,9 +10,10 @@ import neobase
 
 
 def test_empty_base():
-    N1 = neobase.NeoBase(iter([]))
-    N2 = neobase.NeoBase(open(os.devnull))
-    for N in N1, N2:
+    N1 = neobase.NeoBase([])
+    N2 = neobase.NeoBase(iter([]))
+    N3 = neobase.NeoBase(open(os.devnull))
+    for N in N1, N2, N3:
         assert len(N) == 0
 
 
