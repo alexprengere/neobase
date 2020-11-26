@@ -77,7 +77,8 @@ class NeoBase(object):
         return False
 
     def __init__(self, rows=None, date=None):
-        date = datetime.today().strftime('%Y-%m-%d') if date is None else date
+        if date is None:
+            date = getenv('OPTD_POR_DATE', datetime.today().strftime('%Y-%m-%d'))
 
         if rows is None:
             filename = getenv('OPTD_POR_FILE', _DEF_OPTD_POR_FILE)
