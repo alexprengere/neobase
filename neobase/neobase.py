@@ -459,19 +459,64 @@ class NeoBase(object):
 
 def main():
     import argparse
-    from pprint import pprint
 
     parser = argparse.ArgumentParser()
     parser.add_argument('keys', nargs='+', help="List of IATA codes")
     parser.add_argument('--date', help="Reference date to compute active airports")
+    parser.add_argument(
+        "-f",
+        "--field",
+        default=None,
+        help="search by a specific field instead of key",
+    )
+
+    parser.add_argument(
+        "-r",
+        "--radius",
+        default=None,
+        type=float,
+        help="search by radius",
+    )
+
     args = parser.parse_args()
     b = NeoBase(date=args.date)
 
+    print("{0} points of reference".format(len(b)))
+
     for key in args.keys:
-        if key in b:
-            pprint(b.get(key))
+        print()
+        if args.field is not None:
+            for p in b:
+                if key.lower() not in b.get(p, args.field).lower():
+                    continue
+                page_rank = b.get(p, "page_rank")
+                print(
+                    "{0:<10s} {1:<60s} {2:<30s} {3}".format(
+                        p,
+                        b.get(p, "name"),
+                        b.get(p, "country_name"),
+                        "-" if page_rank is None else format(page_rank, ".1%"),
+                    )
+                )
+
+        elif args.radius is not None:
+            for dist, p in sorted(b.find_near(key, radius=args.radius)):
+                print(
+                    "{0:<10s} {1:<60s} {2:<30s} {3:7.1f}km".format(
+                        p,
+                        b.get(p, "name"),
+                        b.get(p, "country_name"),
+                        dist,
+                    )
+                )
+
+        elif key in b:
+            data = b.get(key)
+            print("{0:*^35s}".format("  " + key + "  "))
+            for name in sorted(data):
+                print("{0:<20s}{1}".format(name, repr(data[name])))
         else:
-            print('{0} not in data.'.format(key))
+            print("{0!r} not in data.".format(key))
 
 
 if __name__ == '__main__':
