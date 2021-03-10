@@ -1,6 +1,3 @@
-include VERSION
-include LICENSE
-include README.rst
 include pytest.ini tox.ini
 include update_data.sh
 recursive-include neobase *.csv
