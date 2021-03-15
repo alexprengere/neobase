@@ -94,8 +94,8 @@ You can manually retrieve the latest data source yourself too, but you expose yo
 
     from neobase import NeoBase, OPTD_POR_URL
 
-    text = urlopen(OPTD_POR_URL).read().decode('utf8')
-    N = NeoBase(StringIO(text))
+    data = urlopen(OPTD_POR_URL).read().decode('utf8')
+    N = NeoBase(StringIO(data))
     N.get("PAR")
 
 Command-line interface
