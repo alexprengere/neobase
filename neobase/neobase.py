@@ -36,7 +36,10 @@ if PY3:
 else:
     open_ = open
 
-__all__ = ['NeoBase', 'LatLng']
+__all__ = ['NeoBase', 'LatLng', 'OPTD_POR_URL']
+
+OPTD_POR_URL = ('https://raw.githubusercontent.com/opentraveldata/opentraveldata/'
+                'master/opentraveldata/optd_por_public.csv')
 
 _DEF_OPTD_POR_FILE = op.join(op.dirname(__file__), 'optd_por_public.csv')
 _DEFAULT_RADIUS = 50

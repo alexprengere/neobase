@@ -89,15 +89,12 @@ You can manually retrieve the latest data source yourself too, but you expose yo
 
 .. code:: python
 
-    URL = ('https://raw.githubusercontent.com/opentraveldata/opentraveldata/'
-           'master/opentraveldata/optd_por_public.csv')
-
-    import urllib3
-    http = urllib3.PoolManager()
     from io import StringIO
-    from neobase import NeoBase
+    from urllib.request import urlopen
 
-    text = http.request("GET", URL).data.decode("utf8")
+    from neobase import NeoBase, OPTD_POR_URL
+
+    text = urlopen(OPTD_POR_URL).read().decode('utf8')
     N = NeoBase(StringIO(text))
     N.get("PAR")
 
