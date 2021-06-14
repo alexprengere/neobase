@@ -4,10 +4,12 @@
 name: Python package
 
 on:
-  push:
-    branches: [ master ]
   pull_request:
-    branches: [ master ]
+  push:
+    branches:
+    - master
+    tags:
+    - "v*"
 
 jobs:
   test:
@@ -74,3 +76,19 @@ jobs:
         name: dist
         path: dist
     - run: twine check dist/*
+
+  dist_upload:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+    needs: [dist_check]
+    name: PyPI upload
+    steps:
+    - uses: actions/download-artifact@v2
+      with:
+        name: dist
+        path: dist
+    - name: Publish package to PyPI
+      uses: pypa/gh-action-pypi-publish@master
+      with:
+        user: __token__
+        password: ${{ secrets.PYPI_TOKEN }}
