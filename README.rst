@@ -1,5 +1,14 @@
-NeoBase
-=======
+NeoBase |actions|_ |cratev|_ |crated|_
+======================================
+
+.. _actions : https://github.com/alexprengere/neobase/actions/workflows/python-package.yml
+.. |actions| image:: https://github.com/alexprengere/neobase/actions/workflows/python-package.yml/badge.svg
+
+.. _cratev : https://pypi.org/project/NeoBase/
+.. |cratev| image:: https://pypip.in/v/NeoBase/badge.png
+
+.. _crated : https://pypi.org/project/NeoBase/
+.. |crated| image:: https://pypip.in/d/NeoBase/badge.png
 
 Minimalist `GeoBases <https://github.com/opentraveldata/geobases/>`__
 implementation:
