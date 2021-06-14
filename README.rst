@@ -1,7 +1,7 @@
 NeoBase
 =======
 
-Minimalist `GeoBases <http://opentraveldata.github.com/geobases/>`__
+Minimalist `GeoBases <https://github.com/opentraveldata/geobases/>`__
 implementation:
 
 -  no dependencies
