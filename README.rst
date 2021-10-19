@@ -5,10 +5,10 @@ NeoBase |actions|_ |cratev|_ |crated|_
 .. |actions| image:: https://github.com/alexprengere/neobase/actions/workflows/python-package.yml/badge.svg
 
 .. _cratev : https://pypi.org/project/NeoBase/
-.. |cratev| image:: https://pypip.in/v/NeoBase/badge.png
+.. |cratev| image:: https://img.shields.io/pypi/v/neobase.svg
 
 .. _crated : https://pypi.org/project/NeoBase/
-.. |crated| image:: https://pypip.in/d/NeoBase/badge.png
+.. |crated| image:: https://static.pepy.tech/badge/neobase
 
 Minimalist `GeoBases <https://github.com/opentraveldata/geobases/>`__
 implementation:
