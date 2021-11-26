@@ -149,8 +149,3 @@ class TestReferenceData(object):
         assert base.get("FLL", "city_code_list")[0] == "FLL"
         assert base.get("BWI", "city_code_list")[0] == "WAS"
         assert base.get("ICN", "city_code_list")[0] == "SEL"
-        assert base.get("ICN", "city_code_list")[0] == "SEL"
-        assert base.get("ICN", "city_code_list")[0] == "SEL"
-        assert base.get("ICN", "city_code_list")[0] == "SEL"
-        assert base.get("ICN", "city_code_list")[0] == "SEL"
-        assert base.get("ICN", "city_code_list")[0] == "SEL"
