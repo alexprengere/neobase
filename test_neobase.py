@@ -139,3 +139,9 @@ class TestReferenceData(object):
         assert base.get('NAT', 'name') == "Greater Natal International Airport"
         assert base.get('JIJ', 'name') == "Jijiga Wilwal International Airport"
         assert base.get('SWA', 'name') == "Jieyang Chaoshan Airport"
+
+    def test_city_codes(self, base):
+        assert base.get("EWR", "city_code_list")[0] == "NYC"
+        assert base.get("FLL", "city_code_list")[0] == "FLL"
+        assert base.get("BWI", "city_code_list")[0] == "WAS"
+        assert base.get("ICN", "city_code_list")[0] == "SEL"
