@@ -141,7 +141,16 @@ class TestReferenceData(object):
         assert base.get('SWA', 'name') == "Jieyang Chaoshan Airport"
 
     def test_city_codes(self, base):
+        assert base.get("TSF", "city_code_list")[0] == "VCE"
+        assert base.get("SEA", "city_code_list")[0] == "SEA"
+        assert base.get("PAE", "city_code_list")[0] == "SEA"
+        assert base.get("SWF", "city_code_list")[0] == "NYC"
         assert base.get("EWR", "city_code_list")[0] == "NYC"
         assert base.get("FLL", "city_code_list")[0] == "FLL"
         assert base.get("BWI", "city_code_list")[0] == "WAS"
+        assert base.get("ICN", "city_code_list")[0] == "SEL"
+        assert base.get("ICN", "city_code_list")[0] == "SEL"
+        assert base.get("ICN", "city_code_list")[0] == "SEL"
+        assert base.get("ICN", "city_code_list")[0] == "SEL"
+        assert base.get("ICN", "city_code_list")[0] == "SEL"
         assert base.get("ICN", "city_code_list")[0] == "SEL"
