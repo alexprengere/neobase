@@ -21,8 +21,26 @@ def test_get(base):
     assert base.get('CDG', 'city_code_list') == ['PAR']
 
 
+def test_get_on_unknown(base):
+    assert base.get('___', 'city_code_list', default=[1]) == [1]
+    with pytest.raises(KeyError):
+        base.get('___', 'city_code_list')
+
+
 def test_distance(base):
     assert base.distance('ORY', 'CDG') - 34.8747 < 1e-3
+
+
+def test_distance_on_unknown(base):
+    assert base.distance('___', 'CDG', default=-1) == -1
+    assert base.distance('CDG', '___', default=-1) == -1
+    assert base.distance('___', '___', default=-1) == -1
+    with pytest.raises(KeyError):
+        base.distance('CDG', '___')
+    with pytest.raises(KeyError):
+        base.distance('___', 'CDG')
+    with pytest.raises(KeyError):
+        base.distance('___', '___')
 
 
 def test_airport_priority_over_city(base):

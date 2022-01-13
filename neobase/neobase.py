@@ -308,7 +308,7 @@ class NeoBase(object):
             * cos(l0_lat) * cos(l1_lat)
         ))
 
-    def distance(self, key_0, key_1):
+    def distance(self, key_0, key_1, default=_sentinel):
         """Compute distance between two elements.
 
         This is just a wrapper between the original haversine
@@ -322,8 +322,15 @@ class NeoBase(object):
         >>> b.distance('ORY', 'CDG')
         34.87...
         """
-        return self.distance_between_locations(self.get_location(key_0),
-                                               self.get_location(key_1))
+        try:
+            l0 = self.get_location(key_0)
+            l1 = self.get_location(key_1)
+        except KeyError:
+            if default is _sentinel:
+                raise
+            return default
+        else:
+            return self.distance_between_locations(l0, l1)
 
     def _build_distances(self, lat_lng_ref, keys):
         """
