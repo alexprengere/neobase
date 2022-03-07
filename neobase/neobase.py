@@ -493,7 +493,12 @@ def main():
 
     print("{0} points of reference".format(len(b)))
 
-    for key in args.keys:
+    if args.keys == ["-"]:
+        keys = (key.rstrip() for key in sys.stdin)
+    else:
+        keys = args.keys
+
+    for key in keys:
         print()
         if args.field is not None:
             for p in b:
