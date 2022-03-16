@@ -19,9 +19,13 @@ GeoBase. Rebooted.
 
 from __future__ import with_statement, print_function, division
 
+try:
+    from importlib.resources import open_text
+except ImportError:
+    from importlib_resources import open_text
+
 import sys
 from os import getenv
-import os.path as op
 import operator
 from datetime import datetime
 from collections import namedtuple
@@ -41,7 +45,7 @@ __all__ = ['NeoBase', 'LatLng', 'OPTD_POR_URL']
 OPTD_POR_URL = ('https://raw.githubusercontent.com/opentraveldata/opentraveldata/'
                 'master/opentraveldata/optd_por_public.csv')
 
-_DEF_OPTD_POR_FILE = op.join(op.dirname(__file__), 'optd_por_public.csv')
+_DEF_OPTD_POR_FILE = 'optd_por_public.csv'
 _DEFAULT_RADIUS = 50
 LatLng = namedtuple('LatLng', ['lat', 'lng'])
 
@@ -84,9 +88,13 @@ class NeoBase(object):
             date = getenv('OPTD_POR_DATE', datetime.today().strftime('%Y-%m-%d'))
 
         if rows is None:
-            filename = getenv('OPTD_POR_FILE', _DEF_OPTD_POR_FILE)
-            with open_(filename) as f:
-                self._data = self.load(f, date)
+            filename = getenv('OPTD_POR_FILE')
+            if filename is None:
+                f = open_text(__package__, _DEF_OPTD_POR_FILE)
+            else:
+                f = open_(filename)
+            self._data = self.load(f, date)
+            f.close()
         else:
             self._data = self.load(rows, date)
 
@@ -98,6 +106,7 @@ class NeoBase(object):
     def load(cls, f, date):
         """Building a dictionary of geographical data from optd_por.
 
+        >>> import os.path as op
         >>> path = op.join(op.dirname(__file__), 'optd_por_public.csv')
         >>> with open_(path) as f:
         ...     b = NeoBase.load(f, '2030-01-01')
