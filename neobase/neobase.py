@@ -144,7 +144,7 @@ class NeoBase(object):
                 data[key] = d
             else:
                 prev_d = data[key]
-                new_key = '{}@{}'.format(key, 1 + len(prev_d['__dup__']))
+                new_key = f"{key}@{1 + len(prev_d['__dup__'])}"
                 data[new_key] = d
                 # Exchanging duplicata information
                 d['__dup__'] = prev_d['__dup__'] | {key}
@@ -241,7 +241,7 @@ class NeoBase(object):
         except KeyError:
             # Unless default is set, we raise an Exception
             if default is _sentinel:
-                raise KeyError("Key not found: {}".format(key))
+                raise KeyError(f"Key not found: {key}")
             return default
 
         if field is None:
@@ -250,8 +250,7 @@ class NeoBase(object):
         try:
             res = d[field]
         except KeyError:
-            raise KeyError("Field '{}' (for key '{}') not in {}".format(
-                field, key, list(d)))
+            raise KeyError(f"Field '{field}' (for key '{key}') not in {list(d)}")
         else:
             return res
 
@@ -265,7 +264,7 @@ class NeoBase(object):
         if key not in self:
             # Unless default is set, we raise an Exception
             if default is _sentinel:
-                raise KeyError("Key not found: {}".format(key))
+                raise KeyError(f"Key not found: {key}")
             return default
 
         try:
@@ -494,7 +493,7 @@ def main():
     args = parser.parse_args()
     b = NeoBase(date=args.date)
 
-    print("{} points of reference".format(len(b)))
+    print(f"{len(b)} points of reference")
 
     if args.keys == ["-"]:
         keys = (key.rstrip() for key in sys.stdin)
@@ -530,11 +529,11 @@ def main():
 
         elif key in b:
             data = b.get(key)
-            print("{:*^35s}".format("  " + key + "  "))
+            print("{:*^35s}".format(f"  {key}  "))
             for name in sorted(data):
-                print("{:<20s}{}".format(name, repr(data[name])))
+                print(f"{name:<20s}{repr(data[name])}")
         else:
-            print("{!r} not in data.".format(key))
+            print(f"{key!r} not in data.")
 
 
 if __name__ == '__main__':
