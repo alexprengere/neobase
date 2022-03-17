@@ -12,4 +12,4 @@ def base():
 
 @pytest.fixture
 def past_base():
-    return neobase.NeoBase(date='2012-01-01')
+    return neobase.NeoBase(date="2012-01-01")

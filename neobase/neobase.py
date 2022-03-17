@@ -32,39 +32,42 @@ import csv
 import heapq
 
 from functools import partial
-open_ = partial(open, encoding='utf-8')
 
-__all__ = ['NeoBase', 'LatLng', 'OPTD_POR_URL']
+open_ = partial(open, encoding="utf-8")
 
-OPTD_POR_URL = ('https://raw.githubusercontent.com/opentraveldata/opentraveldata/'
-                'master/opentraveldata/optd_por_public.csv')
+__all__ = ["NeoBase", "LatLng", "OPTD_POR_URL"]
 
-_DEF_OPTD_POR_FILE = 'optd_por_public.csv'
+OPTD_POR_URL = (
+    "https://raw.githubusercontent.com/opentraveldata/opentraveldata/"
+    "master/opentraveldata/optd_por_public.csv"
+)
+
+_DEF_OPTD_POR_FILE = "optd_por_public.csv"
 _DEFAULT_RADIUS = 50
-LatLng = namedtuple('LatLng', ['lat', 'lng'])
+LatLng = namedtuple("LatLng", ["lat", "lng"])
 
 # Sentinel value for signatures
 _sentinel = object()
 
 
 class NeoBase(object):
-    """Main structure, a wrapper around a dict, with dict-like behavior.
-    """
+    """Main structure, a wrapper around a dict, with dict-like behavior."""
+
     KEY = 0  # iata_code
     FIELDS = (
-        ('iata_code', 0, None),
-        ('name', 6, None),
-        ('lat', 8, None),
-        ('lng', 9, None),
-        ('page_rank', 12, lambda s: float(s) if s else None),
-        ('country_code', 16, None),
-        ('country_name', 18, None),
-        ('continent_name', 19, None),
-        ('timezone', 31, None),
-        ('city_code_list', 36, lambda s: s.split(',')),
-        ('city_name_list', 37, lambda s: s.split('=')),
-        ('location_type', 41, list),
-        ('currency', 46, None),
+        ("iata_code", 0, None),
+        ("name", 6, None),
+        ("lat", 8, None),
+        ("lng", 9, None),
+        ("page_rank", 12, lambda s: float(s) if s else None),
+        ("country_code", 16, None),
+        ("country_name", 18, None),
+        ("continent_name", 19, None),
+        ("timezone", 31, None),
+        ("city_code_list", 36, lambda s: s.split(",")),
+        ("city_name_list", 37, lambda s: s.split("=")),
+        ("location_type", 41, list),
+        ("currency", 46, None),
     )
     DUPLICATES = True
 
@@ -79,10 +82,10 @@ class NeoBase(object):
 
     def __init__(self, rows=None, date=None):
         if date is None:
-            date = getenv('OPTD_POR_DATE', datetime.today().strftime('%Y-%m-%d'))
+            date = getenv("OPTD_POR_DATE", datetime.today().strftime("%Y-%m-%d"))
 
         if rows is None:
-            filename = getenv('OPTD_POR_FILE')
+            filename = getenv("OPTD_POR_FILE")
             if filename is None:
                 f = open_text(__package__, _DEF_OPTD_POR_FILE)
             else:
@@ -94,7 +97,7 @@ class NeoBase(object):
 
     @staticmethod
     def _empty_value():
-        return {'__dup__': set()}
+        return {"__dup__": set()}
 
     @classmethod
     def load(cls, f, date):
@@ -118,9 +121,9 @@ class NeoBase(object):
         except StopIteration:
             pass
 
-        for row in csv.reader(f, delimiter='^', quotechar='"'):
+        for row in csv.reader(f, delimiter="^", quotechar='"'):
             # Comments and empty lines
-            if not row or row[0].startswith('#'):
+            if not row or row[0].startswith("#"):
                 continue
 
             if cls.skip(row, date):
@@ -147,8 +150,8 @@ class NeoBase(object):
                 new_key = f"{key}@{1 + len(prev_d['__dup__'])}"
                 data[new_key] = d
                 # Exchanging duplicata information
-                d['__dup__'] = prev_d['__dup__'] | {key}
-                prev_d['__dup__'].add(new_key)
+                d["__dup__"] = prev_d["__dup__"] | {key}
+                prev_d["__dup__"].add(new_key)
 
         return data
 
@@ -268,8 +271,7 @@ class NeoBase(object):
             return default
 
         try:
-            loc = LatLng(float(self.get(key, 'lat')),
-                         float(self.get(key, 'lng')))
+            loc = LatLng(float(self.get(key, "lat")), float(self.get(key, "lng")))
 
         except (ValueError, TypeError, KeyError):
             # Decode geocode, if error, returns None
@@ -304,11 +306,16 @@ class NeoBase(object):
         l1_lng = l1[1] / 180 * pi
 
         # Haversine formula (6371 is Earth radius)
-        return 2 * 6371.0 * asin(sqrt(
-            sin(0.5 * (l0_lat - l1_lat)) ** 2
-            + sin(0.5 * (l0_lng - l1_lng)) ** 2
-            * cos(l0_lat) * cos(l1_lat)
-        ))
+        return (
+            2
+            * 6371.0
+            * asin(
+                sqrt(
+                    sin(0.5 * (l0_lat - l1_lat)) ** 2
+                    + sin(0.5 * (l0_lng - l1_lng)) ** 2 * cos(l0_lat) * cos(l1_lat)
+                )
+            )
+        )
 
     def distance(self, key_0, key_1, default=_sentinel):
         """Compute distance between two elements.
@@ -402,9 +409,11 @@ class NeoBase(object):
         if key not in self:
             return
 
-        for dist, key in self.find_near_location(self.get_location(key),
-                                                 radius=radius,
-                                                 from_keys=from_keys):
+        for dist, key in self.find_near_location(
+            self.get_location(key),
+            radius=radius,
+            from_keys=from_keys,
+        ):
             yield dist, key
 
     def find_closest_from_location(self, lat_lng, N=1, from_keys=None):
@@ -473,15 +482,21 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('keys', nargs='+', help="List of IATA codes")
-    parser.add_argument('--date', help="Reference date to compute active airports")
+    parser.add_argument(
+        "keys",
+        nargs="+",
+        help="List of IATA codes",
+    )
+    parser.add_argument(
+        "--date",
+        help="Reference date to compute active airports",
+    )
     parser.add_argument(
         "-f",
         "--field",
         default=None,
         help="search by a specific field instead of key",
     )
-
     parser.add_argument(
         "-r",
         "--radius",
@@ -536,5 +551,5 @@ def main():
             print(f"{key!r} not in data.")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -18,51 +18,51 @@ def test_empty_base():
 
 
 def test_get(base):
-    assert base.get('CDG', 'city_code_list') == ['PAR']
+    assert base.get("CDG", "city_code_list") == ["PAR"]
 
 
 def test_get_on_unknown(base):
-    assert base.get('___', 'city_code_list', default=[1]) == [1]
+    assert base.get("___", "city_code_list", default=[1]) == [1]
     with pytest.raises(KeyError):
-        base.get('___', 'city_code_list')
+        base.get("___", "city_code_list")
 
 
 def test_distance(base):
-    assert base.distance('ORY', 'CDG') == pytest.approx(34.874805)
+    assert base.distance("ORY", "CDG") == pytest.approx(34.874805)
 
 
 def test_distance_on_unknown(base):
-    assert base.distance('___', 'CDG', default=-1) == -1
-    assert base.distance('CDG', '___', default=-1) == -1
-    assert base.distance('___', '___', default=-1) == -1
+    assert base.distance("___", "CDG", default=-1) == -1
+    assert base.distance("CDG", "___", default=-1) == -1
+    assert base.distance("___", "___", default=-1) == -1
     with pytest.raises(KeyError):
-        base.distance('CDG', '___')
+        base.distance("CDG", "___")
     with pytest.raises(KeyError):
-        base.distance('___', 'CDG')
+        base.distance("___", "CDG")
     with pytest.raises(KeyError):
-        base.distance('___', '___')
+        base.distance("___", "___")
 
 
 def test_airport_priority_over_city(base):
-    assert base.get('NCE', 'name') == "Nice Côte d'Azur International Airport"
-    assert base.get('MAD', 'name') == "Adolfo Suárez Madrid–Barajas Airport"
+    assert base.get("NCE", "name") == "Nice Côte d'Azur International Airport"
+    assert base.get("MAD", "name") == "Adolfo Suárez Madrid–Barajas Airport"
 
 
 def test_obsolete_por_are_not_loaded(base):
-    assert base.get('KMG', 'name') == "Kunming Changshui International Airport"
+    assert base.get("KMG", "name") == "Kunming Changshui International Airport"
 
 
 def test_duplicates(base):
-    assert base.get('NCE', '__dup__') == set(['NCE@1'])
-    assert base.get('NCE@1', '__dup__') == set(['NCE'])
+    assert base.get("NCE", "__dup__") == {"NCE@1"}
+    assert base.get("NCE@1", "__dup__") == {"NCE"}
 
 
 def test_benchmark_get(benchmark, base):
-    benchmark(base.get, 'NCE')
+    benchmark(base.get, "NCE")
 
 
 def test_benchmark_get_name(benchmark, base):
-    benchmark(base.get, 'NCE', 'name')
+    benchmark(base.get, "NCE", "name")
 
 
 def test_timezones(base):
@@ -71,7 +71,7 @@ def test_timezones(base):
 
     for por in base:
         data = base.get(por)
-        tz = data['timezone']
+        tz = data["timezone"]
         if tz not in tz_cache:
             tz_cache.add(tz)
             try:
@@ -80,9 +80,13 @@ def test_timezones(base):
                 unknown_tz.append((por, tz))
 
     if unknown_tz:
-        pytest.fail('Unknown timezone for {0}/{1} pors: {2}'.format(
-                    len(unknown_tz), len(base),
-                    ', '.join('{0} ({1})'.format(*t) for t in unknown_tz)))
+        pytest.fail(
+            "Unknown timezone for {}/{} pors: {}".format(
+                len(unknown_tz),
+                len(base),
+                ", ".join("{} ({})".format(*t) for t in unknown_tz),
+            )
+        )
 
 
 def test_missing_geocodes(base):
@@ -93,7 +97,7 @@ def test_missing_geocodes(base):
             missing_geocodes.append(por)
 
     if missing_geocodes:
-        pytest.fail('Missing geocodes for: {0}'.format(', '.join(missing_geocodes)))
+        pytest.fail("Missing geocodes for: {}".format(", ".join(missing_geocodes)))
 
 
 def test_empty_geocodes(base):
@@ -107,19 +111,19 @@ def test_empty_geocodes(base):
                 empty_geocodes.append(por)
 
     if empty_geocodes:
-        pytest.fail('Empty lat/lng for: {0}'.format(', '.join(empty_geocodes)))
+        pytest.fail("Empty lat/lng for: {}".format(", ".join(empty_geocodes)))
 
 
 def test_duplicate_airports(base):
     for k in base:
-        duplicates = set([k]) | base.get(k, '__dup__')
-        if len([d for d in duplicates if 'A' in base.get(d, 'location_type')]) > 1:
-            pytest.fail('Duplicated airport code: {0}'.format(k))
+        duplicates = {k} | base.get(k, "__dup__")
+        if len([d for d in duplicates if "A" in base.get(d, "location_type")]) > 1:
+            pytest.fail("Duplicated airport code: {}".format(k))
 
 
 def test_old_data(past_base, base):
-    assert 'CPQ' in past_base
-    assert 'CPQ' not in base
+    assert "CPQ" in past_base
+    assert "CPQ" not in base
 
 
 class TestReferenceData(object):
@@ -136,27 +140,30 @@ class TestReferenceData(object):
     """
 
     def test_airport_priority_over_city(self, base):
-        assert base.get('NCE', 'name') == "Nice Côte d'Azur International Airport"
-        assert base.get('MAD', 'name') == "Adolfo Suárez Madrid–Barajas Airport"
+        assert base.get("NCE", "name") == "Nice Côte d'Azur International Airport"
+        assert base.get("MAD", "name") == "Adolfo Suárez Madrid–Barajas Airport"
 
         # Checking top 10 page rank of duplicated airport/city with same IATA code
-        assert base.get('ATL', 'name') == "Hartsfield-Jackson Atlanta International Airport"
-        assert base.get('DXB', 'name') == "Dubai International Airport"
-        assert base.get('LAX', 'name') == "Los Angeles International Airport"
-        assert base.get('SYD', 'name') == "Sydney International Airport"
-        assert base.get('IST', 'name') == "Istanbul Airport"
-        assert base.get('SEA', 'name') == "Seattle-Tacoma International Airport"
-        assert base.get('DFW', 'name') == "Dallas/Fort Worth International Airport"
-        assert base.get('DEN', 'name') == "Denver International Airport"
-        assert base.get('FRA', 'name') == "Frankfurt Airport"
-        assert base.get('AMS', 'name') == "Amsterdam Airport Schiphol"
+        assert (
+            base.get("ATL", "name")
+            == "Hartsfield-Jackson Atlanta International Airport"
+        )
+        assert base.get("DXB", "name") == "Dubai International Airport"
+        assert base.get("LAX", "name") == "Los Angeles International Airport"
+        assert base.get("SYD", "name") == "Sydney International Airport"
+        assert base.get("IST", "name") == "Istanbul Airport"
+        assert base.get("SEA", "name") == "Seattle-Tacoma International Airport"
+        assert base.get("DFW", "name") == "Dallas/Fort Worth International Airport"
+        assert base.get("DEN", "name") == "Denver International Airport"
+        assert base.get("FRA", "name") == "Frankfurt Airport"
+        assert base.get("AMS", "name") == "Amsterdam Airport Schiphol"
 
     def test_obsolete_por_are_not_loaded(self, base):
-        assert base.get('KMG', 'name') == "Kunming Changshui International Airport"
-        assert base.get('HFE', 'name') == "Hefei Xinqiao International Airport"
-        assert base.get('NAT', 'name') == "Greater Natal International Airport"
-        assert base.get('JIJ', 'name') == "Jijiga Wilwal International Airport"
-        assert base.get('SWA', 'name') == "Jieyang Chaoshan Airport"
+        assert base.get("KMG", "name") == "Kunming Changshui International Airport"
+        assert base.get("HFE", "name") == "Hefei Xinqiao International Airport"
+        assert base.get("NAT", "name") == "Greater Natal International Airport"
+        assert base.get("JIJ", "name") == "Jijiga Wilwal International Airport"
+        assert base.get("SWA", "name") == "Jieyang Chaoshan Airport"
 
     def test_city_codes(self, base):
         assert base.get("TSF", "city_code_list")[0] == "VCE"
