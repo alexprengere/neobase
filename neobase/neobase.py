@@ -17,8 +17,6 @@ GeoBase. Rebooted.
     LatLng(lat=48.72..., lng=2.35...)
 """
 
-from __future__ import with_statement, print_function, division
-
 try:
     from importlib.resources import open_text
 except ImportError:
@@ -33,12 +31,8 @@ from math import pi, cos, sin, asin, sqrt
 import csv
 import heapq
 
-PY3 = sys.version_info[0] >= 3
-if PY3:
-    from functools import partial
-    open_ = partial(open, encoding='utf-8')
-else:
-    open_ = open
+from functools import partial
+open_ = partial(open, encoding='utf-8')
 
 __all__ = ['NeoBase', 'LatLng', 'OPTD_POR_URL']
 
@@ -150,10 +144,10 @@ class NeoBase(object):
                 data[key] = d
             else:
                 prev_d = data[key]
-                new_key = '{0}@{1}'.format(key, 1 + len(prev_d['__dup__']))
+                new_key = '{}@{}'.format(key, 1 + len(prev_d['__dup__']))
                 data[new_key] = d
                 # Exchanging duplicata information
-                d['__dup__'] = prev_d['__dup__'] | set([key])
+                d['__dup__'] = prev_d['__dup__'] | {key}
                 prev_d['__dup__'].add(new_key)
 
         return data
@@ -247,7 +241,7 @@ class NeoBase(object):
         except KeyError:
             # Unless default is set, we raise an Exception
             if default is _sentinel:
-                raise KeyError("Key not found: {0}".format(key))
+                raise KeyError("Key not found: {}".format(key))
             return default
 
         if field is None:
@@ -256,7 +250,7 @@ class NeoBase(object):
         try:
             res = d[field]
         except KeyError:
-            raise KeyError("Field '{0}' (for key '{1}') not in {2}".format(
+            raise KeyError("Field '{}' (for key '{}') not in {}".format(
                 field, key, list(d)))
         else:
             return res
@@ -271,7 +265,7 @@ class NeoBase(object):
         if key not in self:
             # Unless default is set, we raise an Exception
             if default is _sentinel:
-                raise KeyError("Key not found: {0}".format(key))
+                raise KeyError("Key not found: {}".format(key))
             return default
 
         try:
@@ -500,7 +494,7 @@ def main():
     args = parser.parse_args()
     b = NeoBase(date=args.date)
 
-    print("{0} points of reference".format(len(b)))
+    print("{} points of reference".format(len(b)))
 
     if args.keys == ["-"]:
         keys = (key.rstrip() for key in sys.stdin)
@@ -515,7 +509,7 @@ def main():
                     continue
                 page_rank = b.get(p, "page_rank")
                 print(
-                    "{0:<10s} {1:<60s} {2:<30s} {3}".format(
+                    "{:<10s} {:<60s} {:<30s} {}".format(
                         p,
                         b.get(p, "name"),
                         b.get(p, "country_name"),
@@ -526,7 +520,7 @@ def main():
         elif args.radius is not None:
             for dist, p in sorted(b.find_near(key, radius=args.radius)):
                 print(
-                    "{0:<10s} {1:<60s} {2:<30s} {3:7.1f}km".format(
+                    "{:<10s} {:<60s} {:<30s} {:7.1f}km".format(
                         p,
                         b.get(p, "name"),
                         b.get(p, "country_name"),
@@ -536,11 +530,11 @@ def main():
 
         elif key in b:
             data = b.get(key)
-            print("{0:*^35s}".format("  " + key + "  "))
+            print("{:*^35s}".format("  " + key + "  "))
             for name in sorted(data):
-                print("{0:<20s}{1}".format(name, repr(data[name])))
+                print("{:<20s}{}".format(name, repr(data[name])))
         else:
-            print("{0!r} not in data.".format(key))
+            print("{!r} not in data.".format(key))
 
 
 if __name__ == '__main__':
