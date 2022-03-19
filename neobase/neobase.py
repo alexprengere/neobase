@@ -87,7 +87,7 @@ class NeoBase(object):
         if rows is None:
             filename = getenv("OPTD_POR_FILE")
             if filename is None:
-                f = open_text(__package__, _DEF_OPTD_POR_FILE)
+                f = open_text("neobase", _DEF_OPTD_POR_FILE)
             else:
                 f = open_(filename)
             self._data = self.load(f, date)
