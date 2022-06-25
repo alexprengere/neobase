@@ -481,7 +481,7 @@ class NeoBase(object):
 def main():
     import argparse
 
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(prog="NeoBase")
     parser.add_argument(
         "keys",
         nargs="+",
