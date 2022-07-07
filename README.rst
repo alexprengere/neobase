@@ -56,7 +56,47 @@ Doc
 
 Check out `readthedocs <http://neobase.readthedocs.org/en/latest/>`__ for the API.
 
-You can customize fields loaded by subclassing.
+You can customize the source data when initializing:
+
+.. code:: python
+
+    with open("file.csv") as f:
+        N = NeoBase(f)
+
+Otherwise the loaded file will be the embedded one, unless the ``OPTD_POR_FILE`` environment variable is set. In that case, it will load from the path defined in that variable.
+
+You can manually retrieve the latest data source yourself too, but you expose yourself to some breaking changes if they occur in the data.
+
+.. code:: python
+
+    from io import StringIO
+    from urllib.request import urlopen
+
+    from neobase import NeoBase, OPTD_POR_URL
+
+    data = urlopen(OPTD_POR_URL).read().decode('utf8')
+    N = NeoBase(StringIO(data))
+    N.get("PAR")
+
+The reference date of validity can be changed as well:
+
+.. code:: python
+
+    N = NeoBase(date="2000-01-01")
+    N.get("AIY")  # was decommissioned in 2015
+
+By default, the reference date will be set to today, unless the ``OPTD_POR_DATE`` environment variable is set. In that case, it will use that value.
+
+You can customize the behavior regarding duplicates: points sharing the same IATA code, like NCE as airport and NCE as city. By default everything is kept, but you can set it so that only the first point with an IATA code is kept:
+
+.. code:: python
+
+    N = NeoBase(duplicates=False)
+    len(N)  # about 10,000 "only"
+
+Note that you can use the ``OPTD_POR_DUPLICATES`` environment variable to control this as well: set it to ``0`` to drop duplicates.
+
+Finally, you can customize fields loaded by subclassing.
 
 .. code:: python
 
@@ -79,33 +119,7 @@ You can customize fields loaded by subclassing.
             ("currency", 46, None),
         )
 
-        # Drop duplicates, keep only the first POR with a specific key
-        # Default value is True
-        DUPLICATES = False
-
     N = SubNeoBase()
-
-You can also customize the source data when initializing:
-
-.. code:: python
-
-    with open("file.csv") as f:
-        N = NeoBase(f)
-
-Otherwise the loaded file will be the embedded one, unless the ``OPTD_POR_FILE`` environment variable is set. In that case, it will load from the path defined in that variable.
-
-You can manually retrieve the latest data source yourself too, but you expose yourself to some breaking changes if they occur in the data.
-
-.. code:: python
-
-    from io import StringIO
-    from urllib.request import urlopen
-
-    from neobase import NeoBase, OPTD_POR_URL
-
-    data = urlopen(OPTD_POR_URL).read().decode('utf8')
-    N = NeoBase(StringIO(data))
-    N.get("PAR")
 
 Command-line interface
 ----------------------

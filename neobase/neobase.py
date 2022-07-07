@@ -69,7 +69,6 @@ class NeoBase(object):
         ("location_type", 41, list),
         ("currency", 46, None),
     )
-    DUPLICATES = True
 
     @staticmethod
     def skip(row, date):
@@ -80,9 +79,12 @@ class NeoBase(object):
             return True
         return False
 
-    def __init__(self, rows=None, date=None):
+    def __init__(self, rows=None, date=None, duplicates=None):
         if date is None:
             date = getenv("OPTD_POR_DATE", datetime.today().strftime("%Y-%m-%d"))
+
+        if duplicates is None:
+            duplicates = getenv("OPTD_POR_DUPLICATES", "1") == "1"
 
         if rows is None:
             filename = getenv("OPTD_POR_FILE")
@@ -90,29 +92,29 @@ class NeoBase(object):
                 f = open_text("neobase", _DEF_OPTD_POR_FILE)
             else:
                 f = open_(filename)
-            self._data = self.load(f, date)
+            self._data = self.load(f, date, duplicates)
             f.close()
         else:
-            self._data = self.load(rows, date)
+            self._data = self.load(rows, date, duplicates)
 
     @staticmethod
     def _empty_value():
         return {"__dup__": set()}
 
     @classmethod
-    def load(cls, f, date):
+    def load(cls, f, date, duplicates):
         """Building a dictionary of geographical data from optd_por.
 
         >>> import os.path as op
         >>> path = op.join(op.dirname(__file__), 'optd_por_public.csv')
         >>> with open_(path) as f:
-        ...     b = NeoBase.load(f, '2030-01-01')
+        ...     b = NeoBase.load(f, '2030-01-01', True)
         >>> b['ORY']['city_code_list']
         ['PAR']
         """
         f = iter(f)  # convert lists to iterators
 
-        fields, key_c, duplicates = cls.FIELDS, cls.KEY, cls.DUPLICATES
+        fields, key_c = cls.FIELDS, cls.KEY
         empty_value = cls._empty_value
 
         data = {}
