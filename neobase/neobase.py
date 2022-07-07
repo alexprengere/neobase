@@ -411,8 +411,9 @@ class NeoBase(object):
         if key not in self:
             return
 
+        lat_lng = self.get_location(key)
         for dist, key in self.find_near_location(
-            self.get_location(key),
+            lat_lng,
             radius=radius,
             from_keys=from_keys,
         ):
