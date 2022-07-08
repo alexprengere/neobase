@@ -70,8 +70,7 @@ class NeoBase(object):
         ("currency", 46, None),
     )
 
-    # Drop duplicates, keep only the first POR with a specific key
-    # Default value is True
+    # Duplicates behavior, by default we keep everything
     DUPLICATES = getenv("OPTD_POR_DUPLICATES", "1") == "1"
 
     @staticmethod
