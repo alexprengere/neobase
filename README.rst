@@ -51,8 +51,8 @@ Or use the Python package:
 
     pip install --user neobase
 
-Doc
----
+Docs
+----
 
 Check out `readthedocs <http://neobase.readthedocs.org/en/latest/>`__ for the API.
 
