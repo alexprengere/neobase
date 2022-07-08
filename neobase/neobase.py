@@ -70,6 +70,10 @@ class NeoBase(object):
         ("currency", 46, None),
     )
 
+    # Drop duplicates, keep only the first POR with a specific key
+    # Default value is True
+    DUPLICATES = getenv("OPTD_POR_DUPLICATES", "1") == "1"
+
     @staticmethod
     def skip(row, date):
         date_from, date_until = row[13], row[14]
@@ -79,12 +83,9 @@ class NeoBase(object):
             return True
         return False
 
-    def __init__(self, rows=None, date=None, duplicates=None):
+    def __init__(self, rows=None, date=None, duplicates=DUPLICATES):
         if date is None:
             date = getenv("OPTD_POR_DATE", datetime.today().strftime("%Y-%m-%d"))
-
-        if duplicates is None:
-            duplicates = getenv("OPTD_POR_DUPLICATES", "1") == "1"
 
         if rows is None:
             filename = getenv("OPTD_POR_FILE")
