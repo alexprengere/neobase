@@ -83,9 +83,12 @@ class NeoBase(object):
             return True
         return False
 
-    def __init__(self, rows=None, date=None, duplicates=DUPLICATES):
+    def __init__(self, rows=None, date=None, duplicates=None):
         if date is None:
             date = getenv("OPTD_POR_DATE", datetime.today().strftime("%Y-%m-%d"))
+
+        if duplicates is None:
+            duplicates = self.DUPLICATES
 
         if rows is None:
             filename = getenv("OPTD_POR_FILE")

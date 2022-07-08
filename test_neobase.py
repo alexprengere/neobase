@@ -126,6 +126,15 @@ def test_old_data(past_base, base):
     assert "CPQ" not in base
 
 
+def test_subclassing():
+    class SubNeoBase(neobase.NeoBase):
+        DUPLICATES = False
+
+    neo = neobase.NeoBase()
+    sub = SubNeoBase()
+    assert len(sub) < len(neo)
+
+
 class TestReferenceData(object):
     """
     IATA codes can be shared between an airport and the associated city, like NCE
