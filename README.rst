@@ -39,17 +39,11 @@ implementation:
 Installation
 ------------
 
-You can install directly after cloning:
+Use the Python package:
 
 .. code:: bash
 
-    pip install --user .
-
-Or use the Python package:
-
-.. code:: bash
-
-    pip install --user neobase
+    pip install neobase
 
 Docs
 ----
