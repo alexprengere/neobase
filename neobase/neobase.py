@@ -509,57 +509,111 @@ def main():
         help="search by a specific field instead of key",
     )
     parser.add_argument(
+        "-w",
+        "--word",
+        action="store_true",
+        help="like 'grep -w', only match whole words with --field",
+    )
+    parser.add_argument(
+        "-v",
+        "--invert-match",
+        action="store_true",
+        help="like 'grep -v', select non-matching with --field",
+    )
+    parser.add_argument(
+        "-c",
+        "--case-sensitive",
+        action="store_true",
+        help="opposite of 'grep -i', make the matching case-sensitive with --field",
+    )
+    parser.add_argument(
         "-r",
         "--radius",
         default=None,
         type=float,
-        help="search by radius",
+        help="search by radius, in kms",
+    )
+    parser.add_argument(
+        "--show",
+        metavar="FIELD",
+        nargs="*",
+        help="when used, the output will look like a CSV containing those fields",
     )
 
     args = parser.parse_args()
-    b = NeoBase(date=args.date)
+    G = NeoBase(date=args.date)
 
-    print(f"{len(b)} points of reference")
+    if args.show:
+        import csv
+
+        w = csv.writer(sys.stdout)
+    else:
+        print(f"{len(G)} points of reference")
 
     if args.keys == ["-"]:
         keys = (key.rstrip() for key in sys.stdin)
     else:
         keys = args.keys
 
-    for key in keys:
-        print()
-        if args.field is not None:
-            for p in b:
-                if key.lower() not in b.get(p, args.field).lower():
+    if args.field is not None:
+        for key in keys:
+            print("\n{:*^108s}".format(f"  {key}  "))
+            for p in G:
+                needle = key
+                haystack = str(G.get(p, args.field))
+                if not args.case_sensitive:
+                    needle = needle.lower()
+                    haystack = haystack.lower()
+                if args.word:  # --word means will look in words list, not substrings
+                    haystack = haystack.split()
+                if (needle in haystack) is args.invert_match:
                     continue
-                page_rank = b.get(p, "page_rank")
-                print(
-                    "{:<10s} {:<60s} {:<30s} {}".format(
-                        p,
-                        b.get(p, "name"),
-                        b.get(p, "country_name"),
-                        "-" if page_rank is None else format(page_rank, ".1%"),
+                if args.show:
+                    w.writerow(G.get(p, f) for f in args.show)
+                else:
+                    page_rank = G.get(p, "page_rank")
+                    print(
+                        "{:<10s} {:<60s} {:<30s} {:>5s}".format(
+                            p,
+                            G.get(p, "name"),
+                            G.get(p, "country_name"),
+                            "-" if page_rank is None else format(page_rank, ".1%"),
+                        )
                     )
-                )
 
-        elif args.radius is not None:
-            for dist, p in sorted(b.find_near(key, radius=args.radius)):
-                print(
-                    "{:<10s} {:<60s} {:<30s} {:7.1f}km".format(
-                        p,
-                        b.get(p, "name"),
-                        b.get(p, "country_name"),
-                        dist,
+    elif args.radius is not None:
+        for key in keys:
+            print("\n{:*^112s}".format(f"  {key}  "))
+            for dist, p in sorted(G.find_near(key, radius=args.radius)):
+                if args.show:
+                    w.writerow(G.get(p, f) for f in args.show)
+                else:
+                    print(
+                        "{:<10s} {:<60s} {:<30s} {:7.1f}km".format(
+                            p,
+                            G.get(p, "name"),
+                            G.get(p, "country_name"),
+                            dist,
+                        )
                     )
-                )
 
-        elif key in b:
-            data = b.get(key)
-            print("{:*^35s}".format(f"  {key}  "))
-            for name in sorted(data):
-                print(f"{name:<20s}{repr(data[name])}")
-        else:
-            print(f"{key!r} not in data.")
+    else:
+        known_keys = []
+        for key in keys:
+            if key in G:
+                known_keys.append(key)
+            else:
+                print(f"{key!r} not found in data.")
+
+        for key in known_keys:
+            if args.show:
+                w.writerow(G.get(key, f) for f in args.show)
+            else:
+                print("\n{:*^55s}".format(f"  {key}  "))
+                data = G.get(key)
+                for name in sorted(data):
+                    if not name.startswith("__") or data[name]:
+                        print(f"{name:<20s}{repr(data[name])}")
 
 
 if __name__ == "__main__":
