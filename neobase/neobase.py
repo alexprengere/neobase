@@ -35,7 +35,7 @@ from functools import partial
 
 open_ = partial(open, encoding="utf-8")
 
-__all__ = ["NeoBase", "LatLng", "OPTD_POR_URL"]
+__all__ = ["NeoBase", "LatLng", "OPTD_POR_URL", "UnknownKeyError"]
 
 OPTD_POR_URL = (
     "https://raw.githubusercontent.com/opentraveldata/opentraveldata/"
@@ -45,6 +45,11 @@ OPTD_POR_URL = (
 _DEF_OPTD_POR_FILE = "optd_por_public.csv"
 _DEFAULT_RADIUS = 50
 LatLng = namedtuple("LatLng", ["lat", "lng"])
+
+
+class UnknownKeyError(KeyError):
+    pass
+
 
 # Sentinel value for signatures
 _sentinel = object()
@@ -249,7 +254,7 @@ class NeoBase(object):
         except KeyError:
             # Unless default is set, we raise an Exception
             if default is _sentinel:
-                raise KeyError(f"Key not found: {key}")
+                raise UnknownKeyError(f"Key not found: {key}")
             return default
 
         if field is None:
@@ -272,7 +277,7 @@ class NeoBase(object):
         if key not in self:
             # Unless default is set, we raise an Exception
             if default is _sentinel:
-                raise KeyError(f"Key not found: {key}")
+                raise UnknownKeyError(f"Key not found: {key}")
             return default
 
         try:

@@ -25,6 +25,8 @@ def test_get_on_unknown(base):
     assert base.get("___", "city_code_list", default=[1]) == [1]
     with pytest.raises(KeyError):
         base.get("___", "city_code_list")
+    with pytest.raises(neobase.UnknownKeyError):
+        base.get("___", "city_code_list")
 
 
 def test_distance(base):
