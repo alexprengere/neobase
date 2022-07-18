@@ -33,6 +33,8 @@ import heapq
 
 from functools import partial
 
+from ._version import __version__
+
 open_ = partial(open, encoding="utf-8")
 
 __all__ = ["NeoBase", "LatLng", "OPTD_POR_URL", "UnknownKeyError"]
@@ -493,6 +495,11 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser(prog="NeoBase")
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"%(prog)s, version {__version__}",
+    )
     parser.add_argument(
         "keys",
         nargs="+",
