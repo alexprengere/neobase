@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 """
 GeoBase. Rebooted.
@@ -54,7 +53,7 @@ class UnknownKeyError(KeyError):
 _sentinel = object()
 
 
-class NeoBase(object):
+class NeoBase:
     """Main structure, a wrapper around a dict, with dict-like behavior."""
 
     KEY = 0  # iata_code
@@ -455,8 +454,7 @@ class NeoBase(object):
 
         iterable = self._build_distances(lat_lng, from_keys)
 
-        for dist, key in heapq.nsmallest(N, iterable):
-            yield dist, key
+        yield from heapq.nsmallest(N, iterable)
 
     def find_with(self, conditions, from_keys=None, reverse=False):
         """Get iterator of all keys with particular field.
