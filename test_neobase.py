@@ -59,14 +59,6 @@ def test_duplicates(base):
     assert base.get("NCE@1", "__dup__") == {"NCE"}
 
 
-def test_benchmark_get(benchmark, base):
-    benchmark(base.get, "NCE")
-
-
-def test_benchmark_get_name(benchmark, base):
-    benchmark(base.get, "NCE", "name")
-
-
 def test_timezones(base):
     tz_cache = set()
     unknown_tz = []
