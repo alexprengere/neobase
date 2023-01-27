@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 import os
 import pytz
@@ -120,7 +119,7 @@ def test_duplicate_airports(base):
     for k in base:
         duplicates = {k} | base.get(k, "__dup__")
         if len([d for d in duplicates if "A" in base.get(d, "location_type")]) > 1:
-            pytest.fail("Duplicated airport code: {}".format(k))
+            pytest.fail(f"Duplicated airport code: {k}")
 
 
 def test_old_data(past_base, base):
@@ -137,7 +136,7 @@ def test_subclassing():
     assert len(sub) < len(neo)
 
 
-class TestReferenceData(object):
+class TestReferenceData:
     """
     IATA codes can be shared between an airport and the associated city, like NCE
     which represents both the airport and the city. In that case, we want the airport

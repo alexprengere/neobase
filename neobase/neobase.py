@@ -249,10 +249,10 @@ class NeoBase:
         """
         try:
             d = self._data[key]
-        except KeyError:
+        except KeyError as e:
             # Unless default is set, we raise an Exception
             if default is _sentinel:
-                raise UnknownKeyError(f"Key not found: {key}")
+                raise UnknownKeyError(f"Key not found: {key}") from e
             return default
 
         if field is None:
@@ -260,8 +260,8 @@ class NeoBase:
 
         try:
             res = d[field]
-        except KeyError:
-            raise KeyError(f"Field '{field}' (for key '{key}') not in {list(d)}")
+        except KeyError as e:
+            raise KeyError(f"Field '{field}' (for key '{key}') not in {list(d)}") from e
         else:
             return res
 
