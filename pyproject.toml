@@ -8,7 +8,7 @@ write_to_template = "__version__ = \"{version}\"\n"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "--strict-markers --doctest-modules --doctest-glob='*.md' --ignore=setup.py"
+addopts = "--strict-markers --doctest-modules --doctest-glob='*.rst' --ignore=setup.py"
 doctest_optionflags = [
     "NORMALIZE_WHITESPACE",
     "IGNORE_EXCEPTION_DETAIL",
