@@ -429,13 +429,11 @@ class NeoBase:
         if key not in self:
             return
 
-        lat_lng = self.get_location(key)
-        for dist, key in self.find_near_location(
-            lat_lng,
+        yield from self.find_near_location(
+            self.get_location(key),
             radius=radius,
             from_keys=from_keys,
-        ):
-            yield dist, key
+        )
 
     def find_closest_from_location(self, lat_lng, N=1, from_keys=None):
         """
@@ -490,13 +488,11 @@ class NeoBase:
         if key not in self:
             return
 
-        lat_lng = self.get_location(key)
-        for dist, key in self.find_closest_from_location(
-            lat_lng,
+        yield from self.find_closest_from_location(
+            self.get_location(key),
             N=N,
             from_keys=from_keys,
-        ):
-            yield dist, key
+        )
 
     def find_with(self, conditions, from_keys=None, reverse=False):
         """Get iterator of all keys with particular field.
