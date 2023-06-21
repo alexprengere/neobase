@@ -380,7 +380,7 @@ class NeoBase:
         :param radius:  the radius of the search (kilometers)
         :param from_keys: if None, it takes all keys in consideration, else takes from_keys \
             iterable of keys to perform search.
-        :returns:       an iterable of keys (like ['ORY', 'CDG'])
+        :returns:       an iterable of (dist, key)
 
         >>> b = NeoBase()
         >>> # Paris, airports <= 50km
@@ -405,7 +405,7 @@ class NeoBase:
         :param radius:  the radius of the search (kilometers)
         :param from_keys: if None, it takes all keys in consideration, else takes from_keys \
             iterable of keys to perform search.
-        :returns:       a list of keys (like ['ORY', 'CDG'])
+        :returns:       an iterable of (dist, key)
 
         >>> b = NeoBase()
         >>> sorted(b.find_near('ORY', 10)) # Orly, por <= 10km
@@ -432,16 +432,12 @@ class NeoBase:
         we look for the closest key from this location, given by
         latitude/longitude.
 
-        Note that a similar implementation is done in
-        the LocalHelper, to find efficiently N closest location
-        in a graph, from a location (using heaps).
-
         :param lat_lng:   the lat_lng of the location
         :param N:         the N closest results wanted
         :param from_keys: if None, it takes all keys in consideration, else takes from_keys \
             iterable of keys to perform find_closest_from_location. This is useful to combine \
             searches
-        :returns:   one key (like 'SFO'), or a list if approximate is not None
+        :returns:       an iterable of (dist, key)
 
         >>> b = NeoBase()
         >>> list(b.find_closest_from_location((43.70, 7.26))) # Nice
@@ -455,6 +451,40 @@ class NeoBase:
         iterable = self._build_distances(lat_lng, from_keys)
 
         yield from heapq.nsmallest(N, iterable)
+
+    def find_closest_from(self, key, N=1, from_keys=None):
+        """
+        Same as find_closest_from_location, except the location is given
+        not by a lat/lng, but with its key, like ORY or SFO.
+        We just look up in the base to retrieve lat/lng, and
+        call find_closest_from_location.
+
+        :param key:       the key of the location
+        :param N:         the N closest results wanted
+        :param from_keys: if None, it takes all keys in consideration, else takes from_keys \
+            iterable of keys to perform find_closest_from_location. This is useful to combine \
+            searches
+        :returns:       an iterable of (dist, key)
+
+        >>> b = NeoBase()
+        >>> list(b.find_closest_from('NCE'))
+        [(0.0, 'NCE')]
+        >>> list(b.find_closest_from('NCE', N=3))
+        [(0.0, 'NCE'), (5.07..., 'XCG@1'), (5.45..., 'XCG')]
+        """
+        if from_keys is None:
+            from_keys = iter(self)
+
+        if key not in self:
+            return
+
+        lat_lng = self.get_location(key)
+        for dist, key in self.find_closest_from_location(
+            lat_lng,
+            N=N,
+            from_keys=from_keys,
+        ):
+            yield dist, key
 
     def find_with(self, conditions, from_keys=None, reverse=False):
         """Get iterator of all keys with particular field.
