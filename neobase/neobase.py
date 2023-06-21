@@ -185,7 +185,13 @@ class NeoBase:
         False
         >>> 'AGN' in b
         True
+        >>> 'agn' in b
+        True
+        >>> None in b
+        False
         """
+        if key is not None:
+            key = key.upper()
         return key in self._data
 
     def __nonzero__(self):
@@ -235,6 +241,8 @@ class NeoBase:
         >>> b.get('Wow!', 'name')
         'test'
         """
+        if key is not None:
+            key = key.upper()
         if key not in self:
             self._data[key] = self._empty_value()
         self._data[key].update(data)
@@ -246,7 +254,11 @@ class NeoBase:
         >>> b.get('OR', 'city_code_list', default=None)
         >>> b.get('ORY', 'city_code_list')
         ['PAR']
+        >>> b.get('nce', 'city_code_list')
+        ['NCE']
         """
+        if key is not None:
+            key = key.upper()
         try:
             d = self._data[key]
         except KeyError as e:
