@@ -90,6 +90,17 @@ def test_timezones(base):
         )
 
 
+def test_missing_timezones(base):
+    missing_timezones = []
+
+    for por in base:
+        if not base.get(por, "timezone"):
+            missing_timezones.append(por)
+
+    if missing_timezones:
+        pytest.fail("Missing timezones for: {}".format(", ".join(missing_timezones)))
+
+
 def test_missing_geocodes(base):
     missing_geocodes = []
 
