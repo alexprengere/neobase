@@ -77,7 +77,7 @@ def main():
 
     if args.field is not None:
         for key in keys:
-            print("\n{:*^108s}".format(f"  {key}  "))
+            print("\n{:*^112s}".format(f"  {args.field}={key}  "))
             for p in G:
                 needle = key
                 haystack = str(G.get(p, args.field))
@@ -93,8 +93,9 @@ def main():
                 else:
                     page_rank = G.get(p, "page_rank")
                     print(
-                        "{:<10s} {:<60s} {:<30s} {:>5s}".format(
+                        "{:<8s} {:<6s} {:<60s} {:<30s} {:>5s}".format(
                             p,
+                            "".join(G.get(p, "location_type")),
                             G.get(p, "name"),
                             G.get(p, "country_name"),
                             "-" if page_rank is None else format(page_rank, ".1%"),
@@ -103,14 +104,15 @@ def main():
 
     elif args.radius is not None:
         for key in keys:
-            print("\n{:*^112s}".format(f"  {key}  "))
+            print("\n{:*^116s}".format(f"  {key}(+{args.radius}km)  "))
             for dist, p in sorted(G.find_near(key, radius=args.radius)):
                 if args.show:
                     w.writerow(G.get(p, f) for f in args.show)
                 else:
                     print(
-                        "{:<10s} {:<60s} {:<30s} {:7.1f}km".format(
+                        "{:<8s} {:<6s} {:<60s} {:<30s} {:7.1f}km".format(
                             p,
+                            "".join(G.get(p, "location_type")),
                             G.get(p, "name"),
                             G.get(p, "country_name"),
                             dist,
