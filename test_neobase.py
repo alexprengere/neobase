@@ -66,6 +66,22 @@ def test_benchmark_get_name(benchmark, base):
     benchmark(base.get, "NCE", "name")
 
 
+def test_missing_city_info(base):
+    missing_city_codes = []
+    missing_city_names = []
+
+    for por in base:
+        if not base.get(por, "city_code_list"):
+            missing_city_codes.append(por)
+        if not base.get(por, "city_name_list"):
+            missing_city_names.append(por)
+
+    if missing_city_codes:
+        pytest.fail("Missing city codes for: {}".format(", ".join(missing_city_codes)))
+    if missing_city_names:
+        pytest.fail("Missing city names for: {}".format(", ".join(missing_city_names)))
+
+
 def test_timezones(base):
     tz_cache = set()
     unknown_tz = []
