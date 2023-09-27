@@ -25,7 +25,8 @@ from os import getenv
 import operator
 from datetime import datetime
 from collections import namedtuple
-from math import pi, cos, sin, asin, sqrt
+from itertools import tee, starmap
+from math import pi, cos, sin, asin, sqrt, fsum
 import csv
 import heapq
 
@@ -43,6 +44,13 @@ OPTD_POR_URL = (
 _DEF_OPTD_POR_FILE = "optd_por_public.csv"
 _DEFAULT_RADIUS = 50
 LatLng = namedtuple("LatLng", ["lat", "lng"])
+
+
+def pairwise(iterable):
+    # pairwise('ABCDEFG') --> AB BC CD DE EF FG
+    a, b = tee(iterable)
+    next(b, None)
+    return zip(a, b)
 
 
 class UnknownKeyError(KeyError):
@@ -337,29 +345,29 @@ class NeoBase:
             )
         )
 
-    def distance(self, key_0, key_1, default=_sentinel):
+    def distance(self, *keys, default=_sentinel):
         """Compute distance between two elements.
 
         This is just a wrapper between the original haversine
         function, but it is probably the most used feature :)
 
-        :param key_0: the first key
-        :param key_1: the second key
+        :param keys: the keys
         :returns:    the distance (km)
 
         >>> b = NeoBase()
         >>> b.distance('ORY', 'CDG')
         34.87...
+        >>> b.distance('ORY', 'NCE', 'CDG')
+        1370.34...
         """
         try:
-            l0 = self.get_location(key_0)
-            l1 = self.get_location(key_1)
+            locations = [self.get_location(k) for k in keys]
         except KeyError:
             if default is _sentinel:
                 raise
             return default
         else:
-            return self.distance_between_locations(l0, l1)
+            return fsum(starmap(self.distance_between_locations, pairwise(locations)))
 
     def _build_distances(self, lat_lng_ref, keys):
         """

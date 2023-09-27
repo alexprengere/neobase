@@ -30,6 +30,7 @@ def test_get_on_unknown(base):
 
 def test_distance(base):
     assert base.distance("ORY", "CDG") == pytest.approx(34.874805)
+    assert base.distance("ORY", "CDG", "NCE") == pytest.approx(729.391132)
 
 
 def test_distance_on_unknown(base):
