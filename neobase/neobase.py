@@ -291,7 +291,7 @@ class NeoBase:
         else:
             return res
 
-    def get_location(self, key, default=_sentinel):
+    def get_location(self, key, lat_field="lat", lng_field="lng", default=_sentinel):
         """Get None or the geocode.
 
         >>> b = NeoBase()
@@ -305,7 +305,10 @@ class NeoBase:
             return default
 
         try:
-            loc = LatLng(float(self.get(key, "lat")), float(self.get(key, "lng")))
+            loc = LatLng(
+                float(self.get(key, lat_field)),
+                float(self.get(key, lng_field)),
+            )
 
         except (ValueError, TypeError, KeyError):
             # Decode geocode, if error, returns None

@@ -28,6 +28,18 @@ def test_get_on_unknown(base):
         base.get("___", "city_code_list")
 
 
+def test_get_location(base):
+    loc = base.get_location("CDG")
+    assert loc.lat == pytest.approx(49.01278)
+    assert loc.lng == pytest.approx(2.55)
+
+
+def test_get_location_on_unknown(base):
+    assert base.get_location("___", default=(0, 0)) == (0, 0)
+    with pytest.raises(KeyError):
+        base.get_location("___")
+
+
 def test_distance(base):
     assert base.distance("ORY", "CDG") == pytest.approx(34.874805)
     assert base.distance("ORY", "CDG", "NCE") == pytest.approx(729.391132)
@@ -162,6 +174,27 @@ def test_subclassing():
     neo = neobase.NeoBase()
     sub = SubNeoBase()
     assert len(sub) < len(neo)
+
+
+def test_custom_fields():
+    class SubNeoBase(neobase.NeoBase):
+        FIELDS = neobase.NeoBase.FIELDS + (
+            ("geolat", 49, None),
+            ("geolng", 50, None),
+        )
+
+    sub = SubNeoBase()
+    assert sub.get("AAE", "geolat") == "36.82889"
+    assert sub.get("AAE", "geolng") == "7.81278"
+
+    # Testing get_location with custom fields
+    loc = sub.get_location("AAE")
+    assert loc.lat == pytest.approx(36.822225)
+    assert loc.lng == pytest.approx(7.809167)
+
+    loc = sub.get_location("AAE", "geolat", "geolng")
+    assert loc.lat == pytest.approx(36.82889)
+    assert loc.lng == pytest.approx(7.81278)
 
 
 class TestReferenceData:
