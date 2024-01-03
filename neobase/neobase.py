@@ -17,9 +17,9 @@ GeoBase. Rebooted.
 """
 
 try:
-    from importlib.resources import open_text
+    from importlib.resources import files
 except ImportError:
-    from importlib_resources import open_text
+    from importlib_resources import files
 
 from os import getenv
 import operator
@@ -109,7 +109,7 @@ class NeoBase:
         if rows is None:
             filename = getenv("OPTD_POR_FILE")
             if filename is None:
-                f = open_text("neobase", _DEF_OPTD_POR_FILE)
+                f = files("neobase").joinpath(_DEF_OPTD_POR_FILE).open()
             else:
                 f = open_(filename)
             self._data = self.load(f, date, duplicates)
