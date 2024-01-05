@@ -109,7 +109,7 @@ class NeoBase:
         if rows is None:
             filename = getenv("OPTD_POR_FILE")
             if filename is None:
-                f = files("neobase").joinpath(_DEF_OPTD_POR_FILE).open()
+                f = files("neobase").joinpath(_DEF_OPTD_POR_FILE).open(encoding="utf-8")
             else:
                 f = open_(filename)
             self._data = self.load(f, date, duplicates)
