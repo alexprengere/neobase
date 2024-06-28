@@ -208,7 +208,7 @@ class NeoBase:
             key = key.upper()
         return key in self._data
 
-    def __nonzero__(self):
+    def __bool__(self):
         """Testing structure emptiness.
 
         :returns: a boolean

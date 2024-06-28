@@ -6,6 +6,7 @@ import pytest
 
 
 import neobase
+from itertools import starmap
 
 
 def test_empty_base():
@@ -114,7 +115,7 @@ def test_timezones(base):
             "Unknown timezone for {}/{} pors: {}".format(
                 len(unknown_tz),
                 len(base),
-                ", ".join("{} ({})".format(*t) for t in unknown_tz),
+                ", ".join(starmap("{} ({})".format, unknown_tz)),
             )
         )
 
