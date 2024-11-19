@@ -16,11 +16,7 @@ GeoBase. Rebooted.
     LatLng(lat=48.72..., lng=2.35...)
 """
 
-try:
-    from importlib.resources import files
-except ImportError:
-    from importlib_resources import files
-
+from importlib.resources import files
 from os import getenv
 import operator
 from datetime import datetime

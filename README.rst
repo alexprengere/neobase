@@ -14,7 +14,7 @@ Minimalist `GeoBases <https://github.com/opentraveldata/geobases/>`__
 implementation:
 
 -  no dependencies
--  compatible with Python 3.6+, CPython and PyPy
+-  compatible with Python 3.9+, CPython and PyPy
 -  one data source:
    `opentraveldata <https://github.com/opentraveldata/opentraveldata>`__
 -  one Python module for easier distribution on clusters (like Hadoop)
