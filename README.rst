@@ -130,3 +130,39 @@ Tests
 .. code:: bash
 
     tox
+
+A note about performance
+------------------------
+
+The geographical operations like ``N.find_near("ORY", 100)`` or ``N.find_closest_from("ORY")`` perform a full scan of the data, and are not optimized (remember that this library has no dependencies by design).
+
+If you want a more efficient solution, you should use a spatial index like a *BallTree*, for example using `scikit-learn <https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.BallTree.html>`__:
+
+.. code:: python
+
+    import numpy as np
+    from sklearn.neighbors import BallTree
+    from neobase import NeoBase
+
+    N = NeoBase()
+
+    iata_codes = []
+    coords = []
+    for key in N:
+        lat, lon = N.get_location(key)
+        if lat is not None and lon is not None:
+            iata_codes.append(N.get(key, "iata_code"))
+            coords.append([np.radians(lat), np.radians(lon)])
+    coords = np.array(coords)
+
+    tree = BallTree(coords, metric="haversine")
+
+    def find_closest_with_balltree(coord):
+        point = np.radians(coord)
+        _, idx = tree.query([point], k=1)
+        iata_code = iata_codes[idx[0][0]]
+        return iata_code
+
+    paris = (48.8566, 2.3522)
+    print(find_closest_with_balltree(paris))  # <0.1ms
+    print(list(N.find_closest_from_location(paris)))  # ~30ms
