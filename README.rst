@@ -134,7 +134,7 @@ Tests
 A note about performance
 ------------------------
 
-The geographical operations like ``N.find_near("ORY", 100)`` or ``N.find_closest_from("ORY")`` perform a full scan of the data, and are not optimized (remember that this library has no dependencies by design).
+The geographical operations like ``N.find_near("ORY", 100)`` or ``N.find_closest_from("ORY")`` perform a full scan of the data, and are not optimized (remember that this library has no dependencies, by design).
 
 If you want a more efficient solution, you should use a spatial index like a *BallTree*, for example using `scikit-learn <https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.BallTree.html>`__:
 
