@@ -43,7 +43,7 @@ except ImportError:
         return zip(a, b)
 
 
-__all__ = ["NeoBase", "LatLng", "OPTD_POR_URL", "UnknownKeyError"]
+__all__ = ["OPTD_POR_URL", "LatLng", "NeoBase", "UnknownKeyError"]
 
 OPTD_POR_URL = (
     "https://raw.githubusercontent.com/opentraveldata/opentraveldata/"

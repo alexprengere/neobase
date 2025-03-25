@@ -135,7 +135,7 @@ def main():
                 data = G.get(key)
                 for name in sorted(data):
                     if not name.startswith("__") or data[name]:
-                        print(f"{name:<20s}{repr(data[name])}")
+                        print(f"{name:<20s}{data[name]!r}")
 
 
 if __name__ == "__main__":
