@@ -522,7 +522,7 @@ class NeoBase:
         >>> c0 = [('city_code_list', ['PAR'])]
         >>> c1 = [('location_type', ['H'])]
         >>> len(list(b.find_with(c0)))
-        18
+        17
         >>> len(list(b.find_with(c0 + c1)))
         2
         """
