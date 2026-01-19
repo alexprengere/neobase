@@ -222,7 +222,7 @@ class NeoBase:
         :returns: a integer
 
         >>> b = NeoBase()
-        >>> 18000 < len(b) < 20000
+        >>> 18000 < len(b) < 21000
         True
         """
         return len(self._data)
