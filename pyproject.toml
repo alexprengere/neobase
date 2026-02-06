@@ -2,6 +2,37 @@
 requires = ["setuptools>=71", "setuptools-scm>=8.1"]
 build-backend = "setuptools.build_meta"
 
+[project]
+name = "NeoBase"
+dynamic = ["version"]
+description = "Python library to manipulate OpenTravelData"
+readme = "README.rst"
+authors = [
+  {name = "Alex Prengère", email = "alex.prengere@gmail.com"},
+]
+requires-python = ">=3.9"
+license-files = ["LICENSE"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+]
+
+[project.scripts]
+NeoBase = "neobase.__main__:main"
+
+[project.urls]
+Homepage = "https://github.com/alexprengere/neobase"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["neobase*",]
+
 [tool.setuptools_scm]
 write_to = "neobase/_version.py"
 write_to_template = "__version__ = \"{version}\"\n"
@@ -41,7 +72,6 @@ filterwarnings = []
 [tool.coverage.run]
 branch = true
 omit = [
-    "setup.py",
     "*/__main__.py",
 ]
 

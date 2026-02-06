@@ -1,2 +1,5 @@
-include update_data.sh
+exclude update_data.sh
+exclude .gitignore
+exclude .pre-commit-config.yaml
+recursive-exclude .github *
 recursive-include neobase *.csv
