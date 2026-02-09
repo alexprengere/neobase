@@ -9,6 +9,10 @@ import neobase
 from itertools import starmap
 
 
+def test_version():
+    assert neobase.__version__ is not None
+
+
 def test_empty_base():
     N1 = neobase.NeoBase([])
     N2 = neobase.NeoBase(iter([]))
