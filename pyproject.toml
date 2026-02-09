@@ -51,7 +51,7 @@ addopts = [
   "--strict-markers",
   "--doctest-modules",
   "--doctest-glob='*.rst'",
-  "--ignore=setup.py",
+  "--import-mode=importlib",
 ]
 doctest_optionflags = [
     "NORMALIZE_WHITESPACE",
