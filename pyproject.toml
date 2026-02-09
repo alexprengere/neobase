@@ -30,11 +30,11 @@ Homepage = "https://github.com/alexprengere/neobase"
 include-package-data = true
 
 [tool.setuptools.packages.find]
-where = ["."]
+where = ["src"]
 include = ["neobase*",]
 
 [tool.setuptools_scm]
-write_to = "neobase/_version.py"
+write_to = "src/neobase/_version.py"
 write_to_template = "__version__ = \"{version}\"\n"
 
 [dependency-groups]
