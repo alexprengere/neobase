@@ -25,6 +25,10 @@ def test_get(base):
     assert base.get("CDG", "city_code_list") == ["PAR"]
 
 
+def test_get_normalizes_key_to_uppercase(base):
+    assert base.get("cdg", "city_code_list") == ["PAR"]
+
+
 def test_get_on_unknown(base):
     assert base.get("___", "city_code_list", default=[1]) == [1]
     with pytest.raises(KeyError):
@@ -35,6 +39,12 @@ def test_get_on_unknown(base):
 
 def test_get_location(base):
     loc = base.get_location("CDG")
+    assert loc.lat == pytest.approx(49.01278)
+    assert loc.lng == pytest.approx(2.55)
+
+
+def test_get_location_normalizes_key_to_uppercase(base):
+    loc = base.get_location("cdg")
     assert loc.lat == pytest.approx(49.01278)
     assert loc.lng == pytest.approx(2.55)
 

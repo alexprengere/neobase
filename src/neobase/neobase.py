@@ -269,12 +269,12 @@ class NeoBase:
         """
         if key is not None:
             key = key.upper()
-        try:
-            d = self._data[key]
-        except KeyError as e:
+
+        d = self._data.get(key)
+        if d is None:
             # Unless default is set, we raise an Exception
             if default is _sentinel:
-                raise UnknownKeyError(f"Key not found: {key}") from e
+                raise UnknownKeyError(f"Key not found: {key}")
             return default
 
         if field is None:
@@ -294,7 +294,11 @@ class NeoBase:
         >>> b.get_location('ORY')
         LatLng(lat=48.72..., lng=2.35...)
         """
-        if key not in self:
+        if key is not None:
+            key = key.upper()
+
+        d = self._data.get(key)
+        if d is None:
             # Unless default is set, we raise an Exception
             if default is _sentinel:
                 raise UnknownKeyError(f"Key not found: {key}")
@@ -302,8 +306,8 @@ class NeoBase:
 
         try:
             loc = LatLng(
-                float(self.get(key, lat_field)),
-                float(self.get(key, lng_field)),
+                float(d[lat_field]),
+                float(d[lng_field]),
             )
 
         except (ValueError, TypeError, KeyError):
