@@ -130,7 +130,7 @@ class NeoBase:
         """
         f = iter(f)  # convert lists to iterators
 
-        fields, key_c = cls.FIELDS, cls.KEY
+        fields, key_c, skip = cls.FIELDS, cls.KEY, cls.skip
         empty_value = cls._empty_value
 
         data = {}
@@ -139,12 +139,17 @@ class NeoBase:
         except StopIteration:
             pass
 
-        for row in csv.reader(f, delimiter="^", quotechar='"'):
+        for line in f:
             # Comments and empty lines
-            if not row or row[0].startswith("#"):
+            if not line or line.startswith("#"):
                 continue
 
-            if cls.skip(row, date):
+            if '"' in line:
+                row = next(csv.reader([line], delimiter="^", quotechar='"'))
+            else:
+                row = line.rstrip("\r\n").split("^")
+
+            if skip(row, date):
                 continue
 
             key = row[key_c]
