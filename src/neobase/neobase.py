@@ -391,11 +391,19 @@ class NeoBase:
         if lat_lng_ref is None:
             return
 
+        data_get = self._data.get
+        distance_between_locations = self.distance_between_locations
         for key in keys:
-            if key in self:
-                lat_lng = self.get_location(key)
-                if lat_lng is not None:
-                    yield self.distance_between_locations(lat_lng_ref, lat_lng), key
+            d = data_get(key.upper() if key is not None else key)
+
+            if d is None:
+                continue
+            try:
+                lat_lng = float(d["lat"]), float(d["lng"])
+            except (ValueError, TypeError, KeyError):
+                continue
+
+            yield distance_between_locations(lat_lng_ref, lat_lng), key
 
     def find_near_location(self, lat_lng, radius=_DEFAULT_RADIUS, from_keys=None):
         """
