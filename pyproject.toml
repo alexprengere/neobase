@@ -119,10 +119,10 @@ select = [
     "RUF",  # Ruff-specific rules
 ]
 ignore = [
-    "module-import-not-at-top-of-file",  # module-import-not-at-top-of-file
-    "ambiguous-unicode-character-string",  # ambiguous-unicode-character-string
-    "collection-literal-concatenation",  # splat-instead-of-concatenation
-    "collections-named-tuple",  # collections-named-tuple
+    "module-import-not-at-top-of-file",
+    "ambiguous-unicode-character-string",
+    "collection-literal-concatenation",
+    "collections-named-tuple",
 ]
 preview = true
 
