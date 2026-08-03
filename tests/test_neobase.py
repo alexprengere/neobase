@@ -193,7 +193,8 @@ def test_subclassing():
 
 def test_custom_fields():
     class SubNeoBase(neobase.NeoBase):
-        FIELDS = neobase.NeoBase.FIELDS + (
+        FIELDS = (
+            *neobase.NeoBase.FIELDS,
             ("geolat", 49, None),
             ("geolng", 50, None),
         )

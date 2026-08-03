@@ -10,7 +10,7 @@ readme = "README.rst"
 authors = [
   {name = "Alex Prengère", email = "alex.prengere@gmail.com"},
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 license-files = ["LICENSE"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
@@ -36,7 +36,7 @@ include = ["neobase*",]
 [dependency-groups]
 test = [
     "pytz>=2024",
-    "pytest>=8.0",
+    "pytest>=9.0",
     "pytest-cov>=5.0",
     "pytest-benchmark>=5.1",
 ]
@@ -89,7 +89,7 @@ show_contexts = true
 
 [tool.ruff]
 line-length = 100
-target-version = "py39"
+target-version = "py311"
 extend-exclude = ["doc"]
 
 [tool.ruff.lint]
@@ -122,11 +122,11 @@ ignore = [
     "module-import-not-at-top-of-file",
     "ambiguous-unicode-character-string",
     "collection-literal-concatenation",
-    "collections-named-tuple",
+    "mutable-class-default",
 ]
 preview = true
 
 [tool.black]
 line-length = 88
-target-version = ["py39"]
+target-version = ["py311"]
 force_exclude = "doc/*"

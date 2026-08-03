@@ -20,27 +20,16 @@ from importlib.resources import files
 from os import getenv
 import operator
 from datetime import datetime
-from collections import namedtuple
 from math import pi, cos, sin, asin, sqrt, fsum
-from itertools import starmap
+from itertools import starmap, pairwise
+from typing import NamedTuple
 import csv
 import heapq
+from collections.abc import Callable, Sequence
 
 from functools import partial
 
 open_ = partial(open, encoding="utf-8")
-
-try:
-    # This is only available for Python3.10+
-    from itertools import pairwise
-except ImportError:
-    from itertools import tee
-
-    def pairwise(iterable):
-        # pairwise('ABCDEFG') --> AB BC CD DE EF FG
-        a, b = tee(iterable)
-        next(b, None)
-        return zip(a, b)
 
 
 __all__ = ["OPTD_POR_URL", "LatLng", "NeoBase", "UnknownKeyError"]
@@ -52,7 +41,11 @@ OPTD_POR_URL = (
 
 _DEF_OPTD_POR_FILE = "optd_por_public.csv"
 _DEFAULT_RADIUS = 50
-LatLng = namedtuple("LatLng", ["lat", "lng"])
+
+
+class LatLng(NamedTuple):
+    lat: float
+    lng: float
 
 
 class UnknownKeyError(KeyError):
@@ -67,7 +60,7 @@ class NeoBase:
     """Main structure, a wrapper around a dict, with dict-like behavior."""
 
     KEY = 0  # iata_code
-    FIELDS = (
+    FIELDS: Sequence[tuple[str, int, Callable | None]] = (
         ("iata_code", 0, None),
         ("name", 6, None),
         ("lat", 8, None),
