@@ -16,11 +16,11 @@ def main():
     parser.add_argument(
         "keys",
         nargs="+",
-        help="List of IATA codes",
+        help="list of IATA codes",
     )
     parser.add_argument(
         "--date",
-        help="Reference date to compute active airports",
+        help="reference date to compute active airports, format is YYYY-MM-DD",
     )
     parser.add_argument(
         "-f",
@@ -44,7 +44,7 @@ def main():
         "-c",
         "--case-sensitive",
         action="store_true",
-        help="opposite of 'grep -i', make the matching case-sensitive with --field",
+        help="make the matching case-sensitive with --field",
     )
     parser.add_argument(
         "-r",
