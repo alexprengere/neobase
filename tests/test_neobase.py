@@ -205,10 +205,12 @@ def test_custom_fields():
 
     # Testing get_location with custom fields
     loc = sub.get_location("AAE")
+    assert loc is not None
     assert loc.lat == pytest.approx(36.822225)
     assert loc.lng == pytest.approx(7.809167)
 
     loc = sub.get_location("AAE", "geolat", "geolng")
+    assert loc is not None
     assert loc.lat == pytest.approx(36.82889)
     assert loc.lng == pytest.approx(7.81278)
 

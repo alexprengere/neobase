@@ -1,3 +1,3 @@
 from importlib import metadata
 
-__version__ = metadata.version("neobase")
+__version__: str = metadata.version("neobase")

@@ -1,10 +1,12 @@
 #!/usr/bin/python
 
 import sys
+from collections.abc import Sequence
+
 from neobase import NeoBase, __version__
 
 
-def main():
+def main(argv: Sequence[str] | None = None) -> None:
     import argparse
 
     parser = argparse.ArgumentParser(prog="NeoBase")
@@ -60,7 +62,7 @@ def main():
         help="when used, the output will look like a CSV containing those fields",
     )
 
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     G = NeoBase(date=args.date)
 
     if args.show:
@@ -84,9 +86,9 @@ def main():
                 if not args.case_sensitive:
                     needle = needle.lower()
                     haystack = haystack.lower()
-                if args.word:  # --word means will look in words list, not substrings
-                    haystack = haystack.split()
-                if (needle in haystack) is args.invert_match:
+                # --word means will look in words list, not substrings
+                haystack_ = haystack.split() if args.word else haystack
+                if (needle in haystack_) is args.invert_match:
                     continue
                 if args.show:
                     w.writerow(G.get(p, f) for f in args.show)

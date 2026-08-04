@@ -34,3 +34,5 @@ tests.log
 tests.log.[0-9]
 # Some commits ignored by git blame
 .git-blame-ignore-revs
+# Some tools with create this
+uv.lock

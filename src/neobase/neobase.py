@@ -1,5 +1,4 @@
 #!/usr/bin/python
-
 """
 GeoBase. Rebooted.
 
@@ -22,10 +21,10 @@ import operator
 from datetime import datetime
 from math import pi, cos, sin, asin, sqrt, fsum
 from itertools import starmap, pairwise
-from typing import NamedTuple
+from typing import NamedTuple, TypeAlias, Any, cast
 import csv
 import heapq
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Iterable, Iterator, Sequence
 
 from functools import partial
 
@@ -41,6 +40,11 @@ OPTD_POR_URL = (
 
 _DEF_OPTD_POR_FILE = "optd_por_public.csv"
 _DEFAULT_RADIUS = 50
+
+FieldValue: TypeAlias = Any
+PointData: TypeAlias = dict[str, FieldValue]
+Splitter: TypeAlias = Callable[[str], FieldValue]
+DistanceResult: TypeAlias = tuple[float, str]
 
 
 class LatLng(NamedTuple):
@@ -60,7 +64,7 @@ class NeoBase:
     """Main structure, a wrapper around a dict, with dict-like behavior."""
 
     KEY = 0  # iata_code
-    FIELDS: Sequence[tuple[str, int, Callable | None]] = (
+    FIELDS: Sequence[tuple[str, int, Splitter | None]] = (
         ("iata_code", 0, None),
         ("name", 6, None),
         ("lat", 8, None),
@@ -80,7 +84,7 @@ class NeoBase:
     DUPLICATES = getenv("OPTD_POR_DUPLICATES", "1") == "1"
 
     @staticmethod
-    def skip(row, date):
+    def skip(row: Sequence[str], date: str) -> bool:
         date_from, date_until = row[13], row[14]
         if date_from and date < date_from:
             return True
@@ -88,7 +92,12 @@ class NeoBase:
             return True
         return False
 
-    def __init__(self, rows=None, date=None, duplicates=None):
+    def __init__(
+        self,
+        rows: Iterable[str] | None = None,
+        date: str | None = None,
+        duplicates: bool | None = None,
+    ) -> None:
         if date is None:
             date = getenv("OPTD_POR_DATE", datetime.today().strftime("%Y-%m-%d"))
 
@@ -107,11 +116,16 @@ class NeoBase:
             self._data = self.load(rows, date, duplicates)
 
     @staticmethod
-    def _empty_value():
+    def _empty_value() -> PointData:
         return {"__dup__": set()}
 
     @classmethod
-    def load(cls, f, date, duplicates):
+    def load(
+        cls,
+        f: Iterable[str],
+        date: str,
+        duplicates: bool,
+    ) -> dict[str, PointData]:
         """Building a dictionary of geographical data from optd_por.
 
         >>> import os.path as op
@@ -126,7 +140,7 @@ class NeoBase:
         fields, key_c, skip = cls.FIELDS, cls.KEY, cls.skip
         empty_value = cls._empty_value
 
-        data = {}
+        data: dict[str, PointData] = {}
         try:
             next(f)  # skipping first line
         except StopIteration:
@@ -163,15 +177,16 @@ class NeoBase:
                 data[key] = d
             else:
                 prev_d = data[key]
-                new_key = f"{key}@{1 + len(prev_d['__dup__'])}"
+                prev_d_dup = cast("set[str]", prev_d["__dup__"])
+                new_key = f"{key}@{1 + len(prev_d_dup)}"
                 data[new_key] = d
                 # Exchanging duplicata information
-                d["__dup__"] = prev_d["__dup__"] | {key}
-                prev_d["__dup__"].add(new_key)
+                d["__dup__"] = prev_d_dup | {key}
+                prev_d_dup.add(new_key)
 
         return data
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[str]:
         """Returns iterator of all keys in the base.
 
         :returns: the iterator of all keys
@@ -182,7 +197,7 @@ class NeoBase:
         """
         return iter(self._data)
 
-    def __contains__(self, key):
+    def __contains__(self, key: str | None) -> bool:
         """Test if a key is in the base.
 
         :param key: the key of to be tested
@@ -202,7 +217,7 @@ class NeoBase:
             key = key.upper()
         return key in self._data
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         """Testing structure emptiness.
 
         :returns: a boolean
@@ -214,7 +229,7 @@ class NeoBase:
         """
         return bool(self._data)
 
-    def __len__(self):
+    def __len__(self) -> int:
         """Testing structure size.
 
         :returns: a integer
@@ -225,7 +240,7 @@ class NeoBase:
         """
         return len(self._data)
 
-    def keys(self):
+    def keys(self) -> Iterator[str]:
         """Returns iterator of all keys in the base.
 
         :returns: the iterator of all keys
@@ -236,7 +251,7 @@ class NeoBase:
         """
         return iter(self)
 
-    def set(self, key, **data):
+    def set(self, key: str | None, **data: FieldValue) -> None:
         """Set information.
 
         >>> b = NeoBase()
@@ -249,13 +264,19 @@ class NeoBase:
         >>> b.get('Wow!', 'name')
         'test'
         """
-        if key is not None:
-            key = key.upper()
+        if key is None:
+            return
+        key = key.upper()
         if key not in self:
             self._data[key] = self._empty_value()
         self._data[key].update(data)
 
-    def get(self, key, field=None, default=_sentinel):
+    def get(
+        self,
+        key: str | None,
+        field: str | None = None,
+        default: object = _sentinel,
+    ) -> Any:
         """Get data from structure.
 
         >>> b = NeoBase()
@@ -285,7 +306,13 @@ class NeoBase:
         else:
             return res
 
-    def get_location(self, key, lat_field="lat", lng_field="lng", default=_sentinel):
+    def get_location(
+        self,
+        key: str | None,
+        lat_field: str = "lat",
+        lng_field: str = "lng",
+        default: object = _sentinel,
+    ) -> LatLng | None:
         """Get None or the geocode.
 
         >>> b = NeoBase()
@@ -300,12 +327,12 @@ class NeoBase:
             # Unless default is set, we raise an Exception
             if default is _sentinel:
                 raise UnknownKeyError(f"Key not found: {key}")
-            return default
+            return cast("LatLng | None", default)
 
         try:
             loc = LatLng(
-                float(d[lat_field]),
-                float(d[lng_field]),
+                float(cast("str", d[lat_field])),
+                float(cast("str", d[lng_field])),
             )
 
         except (ValueError, TypeError, KeyError):
@@ -318,7 +345,10 @@ class NeoBase:
             return loc
 
     @staticmethod
-    def distance_between_locations(l0, l1):
+    def distance_between_locations(
+        l0: LatLng | None,
+        l1: LatLng | None,
+    ) -> float | None:
         """Great circle distance
 
         :param l0: the LatLng tuple of the first location
@@ -352,7 +382,11 @@ class NeoBase:
             )
         )
 
-    def distance(self, *keys, default=_sentinel):
+    def distance(
+        self,
+        *keys: str | None,
+        default: object = _sentinel,
+    ) -> float | None:
         """Compute distance between two elements.
 
         This is just a wrapper between the original haversine
@@ -372,11 +406,15 @@ class NeoBase:
         except KeyError:
             if default is _sentinel:
                 raise
-            return default
+            return cast("float | None", default)
         else:
-            return fsum(starmap(self.distance_between_locations, pairwise(locations)))
+            return fsum(starmap(self.distance_between_locations, pairwise(locations)))  # type: ignore
 
-    def _build_distances(self, lat_lng_ref, keys):
+    def _build_distances(
+        self,
+        lat_lng_ref: LatLng | None,
+        keys: Iterable[str | None],
+    ) -> Iterator[DistanceResult]:
         """
         Compute the iterable of (dist, keys) of a reference
         lat_lng and a list of keys. Keys which have not valid
@@ -392,18 +430,30 @@ class NeoBase:
         data_get = self._data.get
         distance_between_locations = self.distance_between_locations
         for key in keys:
-            d = data_get(key.upper() if key is not None else key)
+            if key is None:
+                continue
+            d = data_get(key.upper())
 
             if d is None:
                 continue
             try:
-                lat_lng = float(d["lat"]), float(d["lng"])
+                lat_lng = LatLng(
+                    float(cast("str", d["lat"])),
+                    float(cast("str", d["lng"])),
+                )
             except (ValueError, TypeError, KeyError):
                 continue
 
-            yield distance_between_locations(lat_lng_ref, lat_lng), key
+            dist = distance_between_locations(lat_lng_ref, lat_lng)
+            if dist is not None:
+                yield dist, key
 
-    def find_near_location(self, lat_lng, radius=_DEFAULT_RADIUS, from_keys=None):
+    def find_near_location(
+        self,
+        lat_lng: LatLng | None,
+        radius: float = _DEFAULT_RADIUS,
+        from_keys: Iterable[str | None] | None = None,
+    ) -> Iterator[DistanceResult]:
         """
         Returns a list of nearby keys from a location (given
         latidude and longitude), and a radius for the search.
@@ -429,7 +479,12 @@ class NeoBase:
             if dist <= radius:
                 yield dist, key
 
-    def find_near(self, key, radius=_DEFAULT_RADIUS, from_keys=None):
+    def find_near(
+        self,
+        key: str | None,
+        radius: float = _DEFAULT_RADIUS,
+        from_keys: Iterable[str | None] | None = None,
+    ) -> Iterator[DistanceResult]:
         """
         Same as find_near_location, except the location is given
         not by a lat/lng, but with its key, like ORY or SFO.
@@ -458,7 +513,12 @@ class NeoBase:
             from_keys=from_keys,
         )
 
-    def find_closest_from_location(self, lat_lng, N=1, from_keys=None):
+    def find_closest_from_location(
+        self,
+        lat_lng: LatLng | None,
+        N: int = 1,
+        from_keys: Iterable[str | None] | None = None,
+    ) -> Iterator[DistanceResult]:
         """
         Concept close to find_near_location, but here we do not
         look for the keys radius-close to a location,
@@ -485,7 +545,12 @@ class NeoBase:
 
         yield from heapq.nsmallest(N, iterable)
 
-    def find_closest_from(self, key, N=1, from_keys=None):
+    def find_closest_from(
+        self,
+        key: str | None,
+        N: int = 1,
+        from_keys: Iterable[str | None] | None = None,
+    ) -> Iterator[DistanceResult]:
         """
         Same as find_closest_from_location, except the location is given
         not by a lat/lng, but with its key, like ORY or SFO.
@@ -517,7 +582,12 @@ class NeoBase:
             from_keys=from_keys,
         )
 
-    def find_with(self, conditions, from_keys=None, reverse=False):
+    def find_with(
+        self,
+        conditions: Iterable[tuple[str, FieldValue]],
+        from_keys: Iterable[str | None] | None = None,
+        reverse: bool = False,
+    ) -> Iterator[str | None]:
         """Get iterator of all keys with particular field.
 
         For example, if you want to know all airports in Paris.

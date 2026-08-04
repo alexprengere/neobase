@@ -14,11 +14,16 @@ repos:
   - repo: "https://github.com/astral-sh/ruff-pre-commit"
     rev: "39d9ac5938dadb73df0564a45f163e25ff9fa6e2"  # frozen: v0.16.1
     hooks:
-      - id: "ruff"
+      - id: "ruff-check"
         args: ["--fix"]
 
   - repo: "https://github.com/psf/black-pre-commit-mirror"
     rev: "4160603246a6b365d4a2af661c6d71b0a0f50478"  # frozen: 26.5.1
     hooks:
       - id: "black"
-        language_version: "python3.11"
+
+  - repo: "https://github.com/astral-sh/ty-pre-commit"
+    rev: "cedca67f9a9e6303431e212951454426df990fae"  # frozen: v0.0.66
+    hooks:
+      - id: "ty"
+        args: ["--system-certs", "--group", "test"]
