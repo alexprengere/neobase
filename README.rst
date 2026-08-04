@@ -20,6 +20,7 @@ implementation:
 -  one Python module for easier distribution on clusters (like Hadoop)
 -  faster load time (5x)
 -  tested with pytest and tox
+-  passes static typing checks with ty
 
 .. code:: python
 
