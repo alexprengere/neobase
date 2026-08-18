@@ -45,6 +45,7 @@ FieldValue: TypeAlias = Any
 PointData: TypeAlias = dict[str, FieldValue]
 Splitter: TypeAlias = Callable[[str], FieldValue]
 DistanceResult: TypeAlias = tuple[float, str]
+LatLngTuple: TypeAlias = tuple[float, float]
 
 
 class LatLng(NamedTuple):
@@ -346,8 +347,8 @@ class NeoBase:
 
     @staticmethod
     def distance_between_locations(
-        l0: LatLng | None,
-        l1: LatLng | None,
+        l0: LatLngTuple | None,
+        l1: LatLngTuple | None,
     ) -> float | None:
         """Great circle distance
 
@@ -412,7 +413,7 @@ class NeoBase:
 
     def _build_distances(
         self,
-        lat_lng_ref: LatLng | None,
+        lat_lng_ref: LatLngTuple | None,
         keys: Iterable[str | None],
     ) -> Iterator[DistanceResult]:
         """
@@ -421,7 +422,7 @@ class NeoBase:
         geocodes will not appear in the results.
 
         >>> b = NeoBase()
-        >>> list(b._build_distances((0,0), ['ORY', 'CDG']))
+        >>> list(b._build_distances((0, 0), ['ORY', 'CDG']))
         [(5422.74..., 'ORY'), (5455.45..., 'CDG')]
         """
         if lat_lng_ref is None:
@@ -437,7 +438,7 @@ class NeoBase:
             if d is None:
                 continue
             try:
-                lat_lng = LatLng(
+                lat_lng = (
                     float(cast("str", d["lat"])),
                     float(cast("str", d["lng"])),
                 )
@@ -450,7 +451,7 @@ class NeoBase:
 
     def find_near_location(
         self,
-        lat_lng: LatLng | None,
+        lat_lng: LatLngTuple | None,
         radius: float = _DEFAULT_RADIUS,
         from_keys: Iterable[str | None] | None = None,
     ) -> Iterator[DistanceResult]:
@@ -515,7 +516,7 @@ class NeoBase:
 
     def find_closest_from_location(
         self,
-        lat_lng: LatLng | None,
+        lat_lng: LatLngTuple | None,
         N: int = 1,
         from_keys: Iterable[str | None] | None = None,
     ) -> Iterator[DistanceResult]:
