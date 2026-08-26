@@ -21,7 +21,7 @@ import operator
 from datetime import datetime
 from math import pi, cos, sin, asin, sqrt, fsum
 from itertools import starmap, pairwise
-from typing import NamedTuple, TypeAlias, Any, cast
+from typing import NamedTuple, TypeAlias, Any, Literal, TypeVar, cast, overload
 import csv
 import heapq
 from collections.abc import Callable, Iterable, Iterator, Sequence
@@ -46,6 +46,29 @@ PointData: TypeAlias = dict[str, FieldValue]
 Splitter: TypeAlias = Callable[[str], FieldValue]
 DistanceResult: TypeAlias = tuple[float, str]
 LatLngTuple: TypeAlias = tuple[float, float]
+StringField: TypeAlias = Literal[
+    "iata_code",
+    "name",
+    "lat",
+    "lng",
+    "country_code",
+    "country_name",
+    "continent_name",
+    "timezone",
+    "currency",
+    # Those are not loaded by default, but they either used to be
+    # loaded, or are commonly used in subclasses
+    "city_code",
+    "city_name",
+    "location_types",
+]
+FloatField: TypeAlias = Literal["page_rank"]
+StringListField: TypeAlias = Literal[
+    "city_code_list",
+    "city_name_list",
+    "location_type",
+]
+DefaultT = TypeVar("DefaultT")
 
 
 class LatLng(NamedTuple):
@@ -271,6 +294,62 @@ class NeoBase:
         if key not in self:
             self._data[key] = self._empty_value()
         self._data[key].update(data)
+
+    @overload
+    def get(
+        self,
+        key: str | None,
+        field: None = None,
+    ) -> PointData: ...
+
+    @overload
+    def get(
+        self,
+        key: str | None,
+        field: None = None,
+        default: DefaultT = ...,
+    ) -> PointData | DefaultT: ...
+
+    @overload
+    def get(self, key: str | None, field: StringField) -> str: ...
+
+    @overload
+    def get(
+        self,
+        key: str | None,
+        field: StringField,
+        default: DefaultT,
+    ) -> str | DefaultT: ...
+
+    @overload
+    def get(self, key: str | None, field: FloatField) -> float | None: ...
+
+    @overload
+    def get(
+        self,
+        key: str | None,
+        field: FloatField,
+        default: DefaultT,
+    ) -> float | DefaultT | None: ...
+
+    @overload
+    def get(self, key: str | None, field: StringListField) -> list[str]: ...
+
+    @overload
+    def get(
+        self,
+        key: str | None,
+        field: StringListField,
+        default: DefaultT,
+    ) -> list[str] | DefaultT: ...
+
+    @overload
+    def get(
+        self,
+        key: str | None,
+        field: str | None = None,
+        default: object = _sentinel,
+    ) -> Any: ...
 
     def get(
         self,
