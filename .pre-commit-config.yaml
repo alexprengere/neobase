@@ -12,18 +12,18 @@ repos:
       - id: "check-yaml"
 
   - repo: "https://github.com/astral-sh/ruff-pre-commit"
-    rev: "65dbdb59d2f2d9c3bdc343c566821ad3319ddaa3"  # frozen: v0.16.3
+    rev: "f12be1ebaa5351c1fc76472de98db2c3446c8253"  # frozen: v0.16.10
     hooks:
       - id: "ruff-check"
         args: ["--fix"]
 
   - repo: "https://github.com/psf/black-pre-commit-mirror"
-    rev: "4160603246a6b365d4a2af661c6d71b0a0f50478"  # frozen: 26.5.1
+    rev: "96ae3e5802f3fe2d551e703e18f0a367d1a81ac2"  # frozen: 26.10.0
     hooks:
       - id: "black"
 
   - repo: "https://github.com/astral-sh/ty-pre-commit"
-    rev: "757b1b0ee6dce6b1541bbe70218055b62aaeb051"  # frozen: v0.0.72
+    rev: "6972e4c5a7e9f45f05a2f30b668f221f43b770c9"  # frozen: v0.0.84
     hooks:
       - id: "ty"
         args: ["--system-certs", "--group", "test"]
