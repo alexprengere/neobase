@@ -37,7 +37,7 @@ include = ["neobase*",]
 [dependency-groups]
 test = [
     "pytz>=2024",
-    "pytest>=9.0",
+    "pytest>=9.0,<9.2",
     "pytest-cov>=5.0",
     "pytest-benchmark>=5.1",
 ]
